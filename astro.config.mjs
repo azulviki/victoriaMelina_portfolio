@@ -10,7 +10,7 @@ export default defineConfig({
   // 🌟 CONFIGURACIÓN PARA GITHUB PAGES
   // Reemplaza TU_USUARIO (en minúsculas) y NOMBRE_DE_TU_REPOSITORIO
   site: 'https://azulviki.github.io', 
-  base: '/victoriaMelina',
+  base: '/victoriaMelina_portfolio',
 
   integrations: [
     react(),
