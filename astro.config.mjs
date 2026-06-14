@@ -7,6 +7,11 @@ import { resolve, dirname } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  // 🌟 CONFIGURACIÓN PARA GITHUB PAGES
+  // Reemplaza TU_USUARIO (en minúsculas) y NOMBRE_DE_TU_REPOSITORIO
+  site: 'https://azulviki.github.io', 
+  base: '/VICTORIAMELINA',
+
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
