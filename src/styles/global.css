@@ -2,13 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+/* 🌟 TIPOGRAFÍAS: Agregamos 'Open Sans' para tu nombre junto a las de Space */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
 @layer base {
   :root {
     --violet: #7b2fff;
     --blue:   #00c8ff;
     --border: rgba(255,255,255,0.08);
+    
+    /* 🌟 VARIABLES DE COLOR: Las centralizamos aquí para usarlas en todo el CSS */
+    --color-brand-dark: #4c1d95;  /* El violeta oscuro base de tu nombre */
+    --color-brand-light: #c4b5fd; /* El lavanda del hover */
   }
 
   html {
@@ -16,6 +21,7 @@
   }
 
   body {
+    /* Nota: Asegúrate de tener 'bg' definido en tu tailwind.config.mjs, sino usa bg-[#080810] */
     @apply bg-bg text-snow font-sans overflow-x-hidden;
   }
 
@@ -50,18 +56,19 @@
     @apply font-mono text-[0.7rem] tracking-[0.15em] uppercase text-violet mb-6;
   }
 }
+
 /* ==========================================================================
    HERO COMPONENT STYLES (Victoria Melina Portfolio)
    ========================================================================== */
 
-/* Nombre: Violeta oscuro a claro con transición suave */
+/* Nombre: Ahora usa las variables centralizadas del :root */
 .hero-title {
-  color: #4c1d95; /* Violeta oscuro base */
+  color: var(--color-brand-dark);
   transition: color 0.3s ease-in-out;
 }
 
 .hero-title:hover {
-  color: #c4b5fd; /* Violeta claro / lavanda */
+  color: var(--color-brand-light);
 }
 
 /* Softwares: Animación individual para cada uno */
@@ -72,7 +79,7 @@
 }
 
 .hero-tool-item:hover {
-  color: #7b2fff; /* Violeta brillante */
+  color: var(--violet); /* 🌟 Usamos tu variable nativa */
   transform: translateY(-4px); /* Efecto de flotado hacia arriba */
 }
 
@@ -84,7 +91,7 @@
 
 .hero-spread:hover {
   letter-spacing: 0.15em;
-  color: #c4b5fd;
+  color: var(--color-brand-light); /* 🌟 Usamos tu variable nativa */
 }
 
 /* Botones con bordes animados */
@@ -112,7 +119,8 @@
   inset: 0;
   border-radius: 4px;
   padding: 1.5px;
-  background: linear-gradient(90deg, #7b2fff, #00c8ff, #7b2fff);
+  /* 🌟 Reemplazamos los hardcodes por tus variables --violet y --blue */
+  background: linear-gradient(90deg, var(--violet), var(--blue), var(--violet));
   background-size: 200% 100%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
