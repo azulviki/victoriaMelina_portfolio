@@ -62,7 +62,17 @@
 /* ==========================================================================
    HERO COMPONENT STYLES (Victoria Melina Portfolio)
    ========================================================================== */
-   
+   @media (max-width: 767px) {
+  html, body {
+    /* Previene comportamientos extraños de rebote elástico en iOS/Android mientras está bloqueado */
+    overscroll-behavior-y: contain; 
+  }
+  
+  #hero-section {
+    /* Asegura que el hero ocupe exactamente la pantalla disponible */
+    height: 100dvh; 
+  }
+}
 
 .hero-box {
   align-items: flex-start;

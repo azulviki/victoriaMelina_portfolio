@@ -67,15 +67,16 @@
     </div>
   </div>
 
-  <div 
+<div 
     id="hero-scroll" 
-    class="absolute bottom-8 left-6 md:left-16 lg:left-24 z-50 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-4 select-none p-6 -m-6"
+    class="absolute bottom-8 left-6 z-50 opacity-100 pointer-events-auto cursor-pointer flex items-center justify-center gap-4 select-none w-48 h-16 bg-white/5 border border-white/10 rounded-lg transition-all active:scale-95"
   >
-    <div class="w-14 h-px overflow-hidden">
-      <div id="scrollLine" class="w-full h-full bg-gradient-to-r from-transparent to-violet origin-left"></div>
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-px overflow-hidden">
+        <div id="scrollLine" class="w-full h-full bg-gradient-to-r from-transparent to-violet origin-left"></div>
+      </div>
+      <span class="font-mono text-[0.75rem] tracking-[0.2em] uppercase text-muted" data-es="scroll" data-en="scroll">scroll</span>
     </div>
-    <span class="font-mono text-[0.7rem] md:text-[0.65rem] tracking-[0.2em] uppercase text-muted" data-es="scroll" data-en="scroll">scroll</span>
-  </div>
 </section>
 
 <script>
@@ -302,41 +303,53 @@
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.5 }
     );
   } else {
-    // ★ MOBILE: El contenedor de texto empieza invisible y sin eventos
+    // 1️⃣ ESTADO INICIAL EN MOBILE
+    // El texto empieza totalmente invisible y no recibe clicks
     gsap.set('#hero-text-container', { opacity: 0, pointerEvents: 'none' });
-    
-    // Dejamos los hijos listos con opacidad 0 para controlarlos individualmente en la revelación
     gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 0 });
 
-    // ★ El indicador de scroll aparece de inmediato en el aterrizaje
-    gsap.fromTo('#hero-scroll',
-      { opacity: 0 },
-      { opacity: 1, duration: 0.6, delay: 0.4 }
-    );
-    gsap.set('#hero-scroll', { pointerEvents: 'auto' });
-
+    // Mostramos tu botón físico de scroll
+    gsap.set('#hero-scroll', { opacity: 1, pointerEvents: 'auto' });
     gsap.fromTo('#scrollLine',
       { scaleX: 0, transformOrigin: 'left' },
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true }
     );
 
-
     let heroRevealed = false;
     const heroScrollBtn = document.getElementById('hero-scroll')!;
 
+    // 2️⃣ FUNCIÓN DE BLOQUEO DE SCROLL
+    // Esta función clava la pantalla y no deja que se mueva bajo ningún concepto
+    function blockMobileScroll(e: TouchEvent) {
+      if (!heroRevealed) {
+        e.preventDefault();
+      }
+    }
+
+    // Activamos el bloqueo estricto en toda la pantalla de mobile
+    window.addEventListener('touchmove', blockMobileScroll, { passive: false });
+
+    // 3️⃣ FUNCIÓN DE REVELACIÓN (Solo se ejecuta al tocar el botón)
     function revealHeroMobile() {
       if (heroRevealed) return;
       heroRevealed = true;
 
-      // Desactivamos la interacción de partículas para no molestar a los links del texto
+      // Apagamos la interacción drag/hover de partículas para liberar los enlaces del texto
       canvasInteractionEnabled = false;
       canvas.style.pointerEvents = 'none';
 
-      // Revelamos el bloque de texto
+      // Hacemos visible el contenedor del texto
       gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
       
-      // Animación de aparición de los textos
-      const tl = gsap.timeline();
+      // Animación escalonada para el texto
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // 4️⃣ LIBERACIÓN: Cuando la animación termina, removemos el bloqueo de pantalla.
+          // Ahora el usuario tiene que VOLVER a scrollear para poder bajar.
+          window.removeEventListener('touchmove', blockMobileScroll);
+        }
+      });
+
       tl.fromTo('#hero-eyebrow',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
         .fromTo('#hero-name',     { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15')
         .fromTo('#hero-alias',    { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.25')
@@ -344,21 +357,22 @@
         .fromTo('#hero-tools',    { opacity: 0 },         { opacity: 1, duration: 0.4, ease: 'power1.out' },       '-=0.15');
     }
 
-    // 🎯 REGLA ESTRICTA: El texto SOLO aparece mediante click/tap en el botón de scroll
+    // Escuchador exclusivo del botón físico
     heroScrollBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      e.stopPropagation(); // Evita que el evento interfiera con el canvas de fondo
+      e.stopPropagation(); // Evita que el tap "atraviese" el botón y toque el canvas
       
       if (!heroRevealed) {
         revealHeroMobile();
       } else {
-        // Segundo Tap: Ahora que el texto ya es visible, realiza el scroll real hacia abajo
+        // Si el texto ya apareció y tocan de nuevo el botón, los lleva abajo fluidamente
         const nextSection = document.querySelector('section:not(#hero-section)');
         if (nextSection) {
           nextSection.scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
+  
 
     }
 
