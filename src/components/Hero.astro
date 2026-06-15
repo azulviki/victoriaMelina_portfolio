@@ -67,11 +67,14 @@
     </div>
   </div>
 
-  <div id="hero-scroll" class="absolute bottom-8 left-6 md:left-16 lg:left-24 z-30 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-3 select-none">
-    <div class="w-12 h-px overflow-hidden">
+  <div 
+    id="hero-scroll" 
+    class="absolute bottom-8 left-6 md:left-16 lg:left-24 z-50 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-4 select-none p-6 -m-6"
+  >
+    <div class="w-14 h-px overflow-hidden">
       <div id="scrollLine" class="w-full h-full bg-gradient-to-r from-transparent to-violet origin-left"></div>
     </div>
-    <span class="font-mono text-[0.65rem] tracking-[0.15em] uppercase text-muted" data-es="scroll" data-en="scroll">scroll</span>
+    <span class="font-mono text-[0.7rem] md:text-[0.65rem] tracking-[0.2em] uppercase text-muted" data-es="scroll" data-en="scroll">scroll</span>
   </div>
 </section>
 
@@ -325,14 +328,14 @@
       if (heroRevealed) return;
       heroRevealed = true;
 
-      // Desactivamos la interacción drag/hover de partículas para que no interfiera con los links de texto
+      // Desactivamos la interacción de partículas para no molestar a los links del texto
       canvasInteractionEnabled = false;
       canvas.style.pointerEvents = 'none';
 
-      // El botón de scroll NO se oculta. Permanece visible y con interacción nativa.
+      // Revelamos el bloque de texto
       gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
       
-      // Animación escalonada para que aparezca el contenido estéticamente
+      // Animación de aparición de los textos
       const tl = gsap.timeline();
       tl.fromTo('#hero-eyebrow',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
         .fromTo('#hero-name',     { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15')
@@ -341,37 +344,23 @@
         .fromTo('#hero-tools',    { opacity: 0 },         { opacity: 1, duration: 0.4, ease: 'power1.out' },       '-=0.15');
     }
 
-    // ★ Listener de Touchmove optimizado para el área del botón (Hitbox de disparo)
-    document.addEventListener('touchmove', (e) => {
-      if (heroRevealed) return;
-      const touch = e.touches[0];
-      const rect = heroScrollBtn.getBoundingClientRect();
-      
-      // Hitbox extendida para que sea fácil activarlo con un swipe intuitivo en la zona
-      if (
-        touch.clientX >= rect.left - 40 &&
-        touch.clientX <= rect.right + 40 &&
-        touch.clientY >= rect.top - 60 &&
-        touch.clientY <= rect.bottom + 60
-      ) {
-        revealHeroMobile();
-      }
-    }, { passive: true });
-
-    // Clic / Tap directo en el botón
+    // 🎯 REGLA ESTRICTA: El texto SOLO aparece mediante click/tap en el botón de scroll
     heroScrollBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation(); // Evita que el evento interfiera con el canvas de fondo
+      
       if (!heroRevealed) {
-        e.preventDefault();
         revealHeroMobile();
       } else {
-        // Si YA está revelado, el botón adquiere la función de saltar a la siguiente sección
+        // Segundo Tap: Ahora que el texto ya es visible, realiza el scroll real hacia abajo
         const nextSection = document.querySelector('section:not(#hero-section)');
         if (nextSection) {
           nextSection.scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
-  }
+
+    }
 
   // ─── SCROLLTRIGGER MATCHMEDIA ─────────────────────────────────────────────
   ScrollTrigger.matchMedia({
