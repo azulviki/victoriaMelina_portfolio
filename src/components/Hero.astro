@@ -118,6 +118,9 @@
   const TRAIL_RATE = 4;
  
   let isDown = false;
+
+  // ★ Flag para bloquear interacción con partículas en mobile una vez revelado el texto
+  let canvasInteractionEnabled = true;
  
   function makeTrailParticle(x: number, y: number): Particle {
     const angle = Math.random() * Math.PI * 2;
@@ -133,6 +136,7 @@
   }
 
   function handleMove(clientX: number, clientY: number) {
+    if (!canvasInteractionEnabled) return; // ★
     const rect = canvas.getBoundingClientRect();
     const mx = clientX - rect.left;
     const my = clientY - rect.top;
@@ -162,9 +166,13 @@
     }
   }
 
-  function handlePress(clientX: number, clientY: number) { isDown = true; }
+  function handlePress(clientX: number, clientY: number) {
+    if (!canvasInteractionEnabled) return; // ★
+    isDown = true;
+  }
 
   function handleRelease(clientX: number, clientY: number, triggerBurst = false) {
+    if (!canvasInteractionEnabled) return; // ★
     isDown = false;
     if (triggerBurst) {
       const rect = canvas.getBoundingClientRect();
@@ -274,39 +282,81 @@
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.5 }
     );
   } else {
-    gsap.set('#hero-scroll', { opacity: 1 });
+    // ★ MOBILE: el texto empieza invisible, solo partículas
+    // El contenedor de texto queda oculto; los hijos no necesitan opacity propia
+    gsap.set('#hero-text-container', { opacity: 0, pointerEvents: 'none' });
+    gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 1, y: 0 });
+
+    // ★ Indicador de scroll: aparece rápido para invitar a tocarlo
+    gsap.fromTo('#hero-scroll',
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6, delay: 0.8 }
+    );
+    gsap.set('#hero-scroll', { pointerEvents: 'auto' });
+
     gsap.fromTo('#scrollLine',
       { scaleX: 0, transformOrigin: 'left' },
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true }
     );
+
+    // ★ Al tocar el indicador de scroll → reveal del texto y bloqueo del canvas
+    let heroRevealed = false;
+    const heroScrollBtn = document.getElementById('hero-scroll')!;
+
+    function revealHeroMobile() {
+      if (heroRevealed) return;
+      heroRevealed = true;
+
+      // Desactiva interacción con partículas
+      canvasInteractionEnabled = false;
+      canvas.style.pointerEvents = 'none';
+
+      // Oculta el botón de scroll
+      gsap.to('#hero-scroll', { opacity: 0, duration: 0.3 });
+
+      // Revela el texto subiendo desde abajo
+      gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
+      const tl = gsap.timeline();
+      tl.fromTo('#hero-eyebrow',
+          { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
+        .fromTo('#hero-name',
+          { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.1')
+        .fromTo('#hero-alias',
+          { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.3')
+        .fromTo('#hero-tagline',
+          { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+        .fromTo('#hero-tools',
+          { opacity: 0 },        { opacity: 1, duration: 0.4, ease: 'power1.out' },        '-=0.1');
+    }
+
+    heroScrollBtn.addEventListener('touchend', (e) => {
+      e.preventDefault(); // evita que el tap dispare scroll accidental
+      revealHeroMobile();
+    }, { passive: false });
+
+    // ★ Fallback por si usan click (simuladores, etc.)
+    heroScrollBtn.addEventListener('click', revealHeroMobile);
   }
 
   // ─── SCROLLTRIGGER MATCHMEDIA ─────────────────────────────────────────────
   ScrollTrigger.matchMedia({
-    // MOBILE: Transparencia pura con el scroll y fijación limpia
+    // ★ MOBILE: ya no maneja la aparición del texto (eso lo hace el tap),
+    //   solo se ocupa de hacer fade-out del hero cuando el usuario sigue scrolleando
     "(max-width: 767px)": function() {
-      gsap.set('#hero-text-container', { opacity: 0 });
-      gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 1 });
-
-      const mobileTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#hero-section',
-          start: 'top top',
-          end: '+=150%', 
-          scrub: true,
-          pin: true,    
-          anticipatePin: 1
+      ScrollTrigger.create({
+        trigger: '#hero-section',
+        start: 'top top',
+        end: '+=60%',
+        scrub: true,
+        onUpdate(self) {
+          // Fade out del hero completo al hacer scroll hacia abajo
+          const opacity = 1 - self.progress;
+          gsap.set(['#hero-text-container', '#heroCanvas'], { opacity });
         }
       });
-
-      mobileTl
-        .to('#hero-scroll', { opacity: 0, duration: 0.2 }, 0)
-        .to('#hero-text-container', { opacity: 1, duration: 0.5, ease: 'power1.out' }, 0.1)
-        .to({}, { duration: 0.4 }) // Pausa de lectura centrado
-        .to(['#hero-text-container', '#heroCanvas'], { opacity: 0, duration: 0.4, ease: 'power1.in' });
     },
 
-    // DESKTOP
+    // DESKTOP: sin cambios
     "(min-width: 768px)": function() {
       gsap.set('#hero-text-container', { opacity: 1 });
       gsap.set('#hero-scroll', { opacity: 1 });
