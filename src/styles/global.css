@@ -12,8 +12,8 @@
     --border: rgba(255,255,255,0.08);
     
     /* 🌟 VARIABLES DE COLOR: Las centralizamos aquí para usarlas en todo el CSS */
-    --color-brand-dark: #56088a;  /* El violeta oscuro base de tu nombre */
-    --color-brand-light: #c4b5fd; /* El lavanda del hover */
+    --color-brand-dark: #c4b5fd;  /* El violeta oscuro base de tu nombre */
+    --color-brand-light: #00c8ff; /* El lavanda del hover */
     --color-snow: #4e4e5f;    /* El blanco nieve para textos */
     --color-bg: #080810;      /* El fondo oscuro */
   }
@@ -63,42 +63,85 @@
    HERO COMPONENT STYLES (Victoria Melina Portfolio)
    ========================================================================== */
 
-/* Nombre: Ahora usa las variables centralizadas del :root */
+.hero-box {
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* 🔒 Al congelar el ancho del bloque superior en desktop, el nombre es inmune a lo que pase abajo */
+@media (min-width: 768px) {
+  .hero-top-block {
+    width: max-content;
+    min-width: max-content;
+  }
+  
+  /* El bloque inferior maneja su propio ancho flexible dinámico */
+  .hero-bottom-block {
+    width: 100%;
+    max-width: max-content;
+  }
+}
+
 .hero-title {
   color: var(--color-brand-dark);
   transition: color 0.3s ease-in-out;
+  width: 100%;
 }
 
 .hero-title:hover {
   color: var(--color-brand-light);
 }
 
-/* Softwares: Animación individual para cada uno */
+/* Layout de ancho idéntico por flex grids tanto en mobile como desktop */
+.row-name-mobile {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+#hero-tagline {
+  white-space: normal;
+  display: block;
+  width: 100%;
+}
+
+/* Elementos de software interactivos */
 .hero-tool-item {
   display: inline-block;
-  color: #94a3b8; /* Gris apagado por defecto */
+  color: #94a3b8;
   transition: color 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .hero-tool-item:hover {
-  color: var(--violet); /* 🌟 Usamos tu variable nativa */
-  transform: translateY(-4px); /* Efecto de flotado hacia arriba */
+  color: var(--violet);
+  transform: translateY(-4px);
 }
 
-/* Efecto spread para textos secundarios */
+/* Animación del Spread (Expansión de tracking) */
 .hero-spread {
   display: block;
   transition: letter-spacing 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
- 
 }
 
 .hero-spread:hover {
-  letter-spacing: 0.20em;
-  color: var(--color-brand-light); /* 🌟 Usamos tu variable nativa */
+  letter-spacing: 0.05em;
+  color: var(--color-brand-light);
+}
+
+@media (min-width: 768px) {
+  .hero-spread:hover {
+    letter-spacing: 0.18em; /* Se estira en desktop e influye en el ancho de las tools de abajo */
+  }
 }
 
 #hero-eyebrow.hero-spread:hover {
-  letter-spacing: 0.60em;
+  letter-spacing: 0.30em;
+}
+
+@media (min-width: 768px) {
+  #hero-eyebrow.hero-spread:hover {
+    letter-spacing: 0.50em;
+  }
 }
 
 #hero-eyebrow {
@@ -109,6 +152,7 @@
   color: var(--blue);
   transform: translateY(-4px);
 }
+
 /* Botones con bordes animados */
 .btn-hero {
   position: relative;
