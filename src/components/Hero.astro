@@ -2,73 +2,55 @@
 // src/components/Hero.astro
 ---
 
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&family=Space+Mono&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght=700&family=Space+Mono&display=swap" rel="stylesheet" />
 
-<section class="hero relative min-h-dvh flex items-center overflow-hidden bg-[#080810]">
-  <!-- CAPA 0: El canvas al fondo de todo -->
-  <canvas id="heroCanvas" class="absolute inset-0 w-full h-full z-0 cursor-crosshair"></canvas>
+<section id="hero-section" class="hero relative min-h-dvh flex items-center overflow-hidden bg-[#080810]">
   
-  <!-- CAPA 1: El degradado encima del canvas pero DEBAJO del texto. Le quitamos el z-[1] y lo dejamos con z-0 o z-10 controlado
-  <div class="absolute inset-0 z-1 bg-[radial-gradient(ellipse_at_65%_50%,transparent_20%,#080810_78%)] pointer-events-none"></div>-->
+  <canvas id="heroCanvas" class="absolute inset-0 w-full h-full z-0 cursor-crosshair touch-none"></canvas>
+  
+  <div id="hero-text-container" class="absolute inset-0 z-20 px-8 md:px-16 lg:px-24 w-full flex items-center justify-start opacity-0 pointer-events-none">
 
-  <!-- CAPA 2: El contenedor de texto con un z-index superior (z-20) para obligarlo a estar al frente -->
-  <div class="relative z-20 px-8 md:px-16 lg:px-24 w-full max-w-4xl pointer-events-none">
+  <div class="hero-box relative z-30 flex flex-col gap-0 max-w-[fit-content] md:pointer-events-auto">
 
-    <!-- La Caja: Ahora con z-30 y pointer-events-auto explícito en los hijos para asegurar el click/hover -->
-    <div class="hero-box relative z-30 flex flex-col gap-0 max-w-[fit-content] pointer-events-auto">
+    <p
+      id="hero-eyebrow"
+      class="hero-spread hero-tool-item font-mono uppercase text-blue opacity-0 cursor-default text-[0.95rem] tracking-[0.4em] mb-4 w-full"
+      data-es="Realizadora audiovisual & VJ"
+      data-en="Audiovisual Director & VJ"
+    >Realizadora audiovisual & VJ</p>
 
-      <!-- Eyebrow — en caja -->
-      <p
-        id="hero-eyebrow"
-        class="hero-spread hero-tool-item font-mono uppercase text-blue opacity-0 cursor-default
-               text-[0.95rem] tracking-[0.4em] mb-4 w-full"
-        data-es="Realizadora audiovisual & VJ"
-        data-en="Audiovisual Director & VJ"
-      >Realizadora audiovisual & VJ</p>
+    <h1
+      id="hero-name"
+      class="hero-title relative z-40 opacity-0 cursor-pointer block mb-2"
+      style="font-family: 'Open Sans', sans-serif; font-weight: 700; font-size: clamp(3.5rem, 8vw, 6.5rem); line-height: 0.85;">
+      <span class="block pointer-events-auto">Victoria</span>
+      <span class="block pointer-events-auto">Melina</span>
+    </h1>
 
-      <!-- Name — Ahora le añadimos la clase 'relative z-40' para aislarlo por completo en su propia capa interactiva -->
-      <h1
-        id="hero-name"
-        class="hero-title relative z-40 opacity-0 cursor-pointer block mb-2"
-        style="font-family: 'Open Sans', sans-serif; font-weight: 700; font-size: clamp(3.5rem, 8vw, 6.5rem); line-height: 0.85;">
-        <span class="block pointer-events-auto">Victoria</span>
-        <span class="block pointer-events-auto">Melina</span>
-      </h1>
+    <p
+      id="hero-alias"
+      class="hero-spread font-mono tracking-[0.2em] text-violet/60 opacity-0 cursor-default text-[1.1rem] mt-2 mb-6 w-full"
+    >VJ Bluh</p>
 
-      <!-- Alias -->
-      <p
-        id="hero-alias"
-        class="hero-spread font-mono tracking-[0.2em] text-violet/60 opacity-0 cursor-default
-               text-[1.1rem] mt-2 mb-6 w-full"
-      >VJ Bluh</p>
+    <p
+      id="hero-tagline"
+      class="hero-tool-item hero-spread font-mono uppercase opacity-0 cursor-default text-[1.2rem] mb-6 w-full"
+      data-es="Creo imágenes que se mueven en tiempo real."
+      data-en="I make images that move in real time."
+    >Creo imágenes que se mueven en tiempo real.</p>
 
-      <!-- Tagline -->
-      <p
-  id="hero-tagline"
-        class="hero-tool-item hero-spread font-mono uppercase opacity-0 cursor-default
-               text-[1.2rem] mb-6 w-full"
-        data-es="Creo imágenes que se mueven en tiempo real."
-        data-en="I make images that move in real time."
-      >Creo imágenes que se mueven en tiempo real.</p>
-
-      <!-- Tools — Forzamos que cada elemento interno escuche los eventos del mouse -->
-      <!-- Tools — Vertical en mobile, horizontal justificado en desktop -->
-      <div
-        id="hero-tools"
-        class="flex flex-col md:flex-row md:justify-between gap-3 md:gap-4 w-full font-mono uppercase text-muted opacity-0
-               text-[0.95rem] tracking-[0.1em] mb-8 relative z-40 pointer-events-auto">
-        <span class="hero-tool-item cursor-pointer pointer-events-auto">After Effects</span>
-        <span class="hero-tool-item cursor-pointer pointer-events-auto">TouchDesigner</span>
-        <span class="hero-tool-item cursor-pointer pointer-events-auto">Resolume</span>
-      </div>
-
-      
-
+    <div
+      id="hero-tools"
+      class="flex flex-col md:flex-row md:justify-between gap-3 md:gap-4 w-full font-mono uppercase text-muted opacity-0 text-[0.95rem] tracking-[0.1em] mb-8 relative z-40">
+      <span class="hero-tool-item cursor-pointer pointer-events-auto">After Effects</span>
+      <span class="hero-tool-item cursor-pointer pointer-events-auto">TouchDesigner</span>
+      <span class="hero-tool-item cursor-pointer pointer-events-auto">Resolume</span>
     </div>
-  </div>
 
-  <!-- Scroll indicator -->
-  <div id="hero-scroll" class="absolute bottom-8 left-8 md:left-16 lg:left-24 z-20 opacity-0 pointer-events-none flex items-center gap-3">
+  </div>
+</div>
+
+  <div id="hero-scroll" class="absolute bottom-8 left-8 md:left-16 lg:left-24 z-30 opacity-0 pointer-events-none flex items-center gap-3">
     <div class="w-12 h-px overflow-hidden">
       <div id="scrollLine" class="w-full h-full bg-gradient-to-r from-transparent to-violet origin-left"></div>
     </div>
@@ -76,16 +58,16 @@
   </div>
 </section>
 
-
-
 <script>
   import { gsap } from 'gsap';
-
-  // ─── CANVAS (Partículas más grandes) ───────────────────────────────────────
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+ 
+  // ─── CANVAS ───────────────────────────────────────────────────────────────
   const canvas = document.getElementById('heroCanvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
   let W = 0, H = 0;
-
+ 
   interface Particle {
     x: number; y: number;
     vx: number; vy: number;
@@ -94,81 +76,142 @@
     life: number; maxLife: number;
     drag?: number;
   }
-
+ 
   let particles: Particle[] = [];
   function rand(a: number, b: number) { return a + Math.random() * (b - a); }
-
+ 
   function makeParticle(): Particle {
     const angle = Math.random() * Math.PI * 2;
-    const speed = rand(0.05, 0.3); // Un poco más lentas para equilibrar el tamaño masivo
+    const speed = rand(0.08, 0.45);
     const hue   = Math.random() < 0.6 ? 270 : 190;
     return {
       x: Math.random() * W, y: Math.random() * H,
       vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-      size: rand(8, 22), // 🌟 Partículas base MÁS GRANDES (Antes: 3 a 8)
-      alpha: rand(0.15, 0.55), // Un poco más transparentes para que no saturen por su tamaño
+      size: rand(5, 12), alpha: rand(0.25, 0.85),
       hue, sat: rand(70, 100), lit: rand(50, 75),
-      life: 0, maxLife: rand(300, 800),
+      life: 0, maxLife: rand(200, 700),
     };
   }
-
+ 
   function makeBurstParticle(x: number, y: number): Particle {
     const angle = Math.random() * Math.PI * 2;
-    const speed = rand(2, 6);
+    const speed = rand(1.5, 5);
     const hue   = Math.random() < 0.5 ? 270 : 190;
     return {
       x, y,
       vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-      size: rand(12, 28), // 🌟 Partículas de explosión MÁS GRANDES (Antes: 4 a 9)
-      alpha: rand(0.6, 0.9),
+      size: rand(6, 14), alpha: rand(0.7, 1),
       hue, sat: 100, lit: rand(65, 85),
-      life: 0, maxLife: rand(50, 100), drag: 0.93,
+      life: 0, maxLife: rand(40, 90), drag: 0.92,
+    };
+  }
+ 
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function initParticles() {
+    const count = Math.min(Math.floor((W * H) / 6000), 180);
+    particles = Array.from({ length: count }, makeParticle);
+  }
+ 
+  const REPEL_RADIUS = 140, REPEL_FORCE = 8, BURST_COUNT = 18;
+  const HOVER_RADIUS = 80,  HOVER_FORCE = 0.4;
+  const ATTRACT_RADIUS = 150, ATTRACT_FORCE = 2.5;
+  const TRAIL_RATE = 4;
+ 
+  let isDown = false;
+ 
+  function makeTrailParticle(x: number, y: number): Particle {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = rand(0.2, 1.2);
+    const hue   = Math.random() < 0.6 ? 270 : 190;
+    return {
+      x: x + rand(-8, 8), y: y + rand(-8, 8),
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+      size: rand(4, 9), alpha: rand(0.6, 1),
+      hue, sat: 100, lit: rand(60, 82),
+      life: 0, maxLife: rand(25, 65), drag: 0.94,
     };
   }
 
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  function initParticles() {
-    // Reducimos un poco la densidad para que las partículas grandes respiren mejor
-    const count = Math.min(Math.floor((W * H) / 9000), 120);
-    particles = Array.from({ length: count }, makeParticle);
+  function handleMove(clientX: number, clientY: number) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = clientX - rect.left;
+    const my = clientY - rect.top;
+ 
+    if (isDown) {
+      particles.forEach(p => {
+        const dx = mx - p.x, dy = my - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < ATTRACT_RADIUS && dist > 0) {
+          const force = (1 - dist / ATTRACT_RADIUS) * ATTRACT_FORCE;
+          p.vx += (dx/dist) * force;
+          p.vy += (dy/dist) * force;
+        }
+      });
+      for (let i = 0; i < TRAIL_RATE; i++) {
+        particles.push(makeTrailParticle(mx, my));
+      }
+    } else {
+      particles.forEach(p => {
+        const dx = p.x - mx, dy = p.y - my;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < HOVER_RADIUS && dist > 0) {
+          const force = (1 - dist / HOVER_RADIUS) * HOVER_FORCE;
+          p.vx += (dx/dist)*force; p.vy += (dy/dist)*force;
+        }
+      });
+    }
   }
 
-  const REPEL_RADIUS = 180, REPEL_FORCE = 5, BURST_COUNT = 14;
-  const HOVER_RADIUS = 110,  HOVER_FORCE = 0.3;
+  function handlePress(clientX: number, clientY: number) { isDown = true; }
 
-  canvas.addEventListener('click', (e: MouseEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    particles.forEach(p => {
-      const dx = p.x - mx, dy = p.y - my;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < REPEL_RADIUS && dist > 0) {
-        const force = (1 - dist / REPEL_RADIUS) * REPEL_FORCE;
-        p.vx += (dx/dist)*force; p.vy += (dy/dist)*force;
-        p.life = 0; p.maxLife = rand(300, 600);
-      }
-    });
-    particles.push(...Array.from({ length: BURST_COUNT }, () => makeBurstParticle(mx, my)));
-  });
+  function handleRelease(clientX: number, clientY: number, triggerBurst = false) {
+    isDown = false;
+    if (triggerBurst) {
+      const rect = canvas.getBoundingClientRect();
+      const mx = clientX - rect.left;
+      const my = clientY - rect.top;
+      particles.forEach(p => {
+        const dx = p.x - mx, dy = p.y - my;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < REPEL_RADIUS && dist > 0) {
+          const force = (1 - dist / REPEL_RADIUS) * REPEL_FORCE;
+          p.vx += (dx/dist)*force; p.vy += (dy/dist)*force;
+          p.life = 0; p.maxLife = rand(200, 500);
+        }
+      });
+      particles.push(...Array.from({ length: BURST_COUNT }, () => makeBurstParticle(mx, my)));
+    }
+  }
+ 
+  // Listeners Mouse
+  canvas.addEventListener('mousedown', (e) => handlePress(e.clientX, e.clientY));
+  canvas.addEventListener('mouseup', (e) => handleRelease(e.clientX, e.clientY, true));
+  canvas.addEventListener('mouseleave', () => handleRelease(0, 0, false));
+  canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
 
-  canvas.addEventListener('mousemove', (e: MouseEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    particles.forEach(p => {
-      const dx = p.x - mx, dy = p.y - my;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < HOVER_RADIUS && dist > 0) {
-        const force = (1 - dist / HOVER_RADIUS) * HOVER_FORCE;
-        p.vx += (dx/dist)*force; p.vy += (dy/dist)*force;
-      }
-    });
-  });
+  // Listeners Touch
+  canvas.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    handlePress(touch.clientX, touch.clientY);
+  }, { passive: true });
 
+  canvas.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length > 0) {
+      const touch = e.changedTouches[0];
+      handleRelease(touch.clientX, touch.clientY, true);
+    }
+  }, { passive: true });
+ 
   function drawFrame() {
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(8,8,16,0.15)';
+    ctx.fillStyle = 'rgba(8,8,16,0.2)';
     ctx.fillRect(0, 0, W, H);
-
+ 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.life++;
@@ -183,55 +226,96 @@
       if (p.life >= p.maxLife) {
         if (p.drag !== undefined) particles.splice(i, 1);
         else particles[i] = makeParticle();
-      } else if (p.drag === undefined && (p.x < -20 || p.x > W+20 || p.y < -20 || p.y > H+20)) {
+      } else if (p.drag === undefined && (p.x < -10 || p.x > W+10 || p.y < -10 || p.y > H+10)) {
         particles[i] = makeParticle();
       }
     }
-
+ 
     const ambient = particles.filter(p => p.drag === undefined);
     for (let i = 0; i < ambient.length; i++) {
       for (let j = i + 1; j < ambient.length; j++) {
         const dx = ambient[i].x - ambient[j].x, dy = ambient[i].y - ambient[j].y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 130) {
+        if (dist < 100) {
           ctx.beginPath();
           ctx.moveTo(ambient[i].x, ambient[i].y);
           ctx.lineTo(ambient[j].x, ambient[j].y);
-          ctx.strokeStyle = `rgba(123,47,255,${0.06*(1-dist/130)})`;
-          ctx.lineWidth = 0.8; ctx.stroke();
+          ctx.strokeStyle = `rgba(123,47,255,${0.08*(1-dist/100)})`;
+          ctx.lineWidth = 0.6; ctx.stroke();
         }
       }
     }
     requestAnimationFrame(drawFrame);
   }
-
+ 
   function startCanvas() { resize(); initParticles(); drawFrame(); }
   window.addEventListener('resize', () => { resize(); initParticles(); }, { passive: true });
   startCanvas();
-
-  // ─── GSAP entrance ────────────────────────────────────────────────────────
+ 
+  // ─── ANIMACIÓN DE ENTRADA ──────────────────────────────────────────────────
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isDesktop = window.innerWidth >= 768;
+  
   if (prefersReduced) {
-    gsap.set(['#hero-eyebrow','#hero-name','#hero-alias','#hero-tagline','#hero-tools','#hero-cta','#hero-scroll'], { opacity: 1 });
-  } else {
+    gsap.set(['#hero-text-container', '#hero-eyebrow','#hero-name','#hero-alias','#hero-tagline','#hero-tools','#hero-scroll'], { opacity: 1 });
+  } else if (isDesktop) {
+    gsap.set('#hero-text-container', { opacity: 1 });
+
     const tl = gsap.timeline({ delay: 0.2 });
     tl.fromTo('#hero-eyebrow',  { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' })
       .fromTo('#hero-name',     { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out' }, '-=0.1')
       .fromTo('#hero-alias',    { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' }, '-=0.4')
       .fromTo('#hero-tagline',  { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power2.out' }, '-=0.2')
       .fromTo('#hero-tools',    { opacity: 0 },          { opacity: 1, duration: 0.5, ease: 'power1.out' },       '-=0.1')
-      //.fromTo('#hero-cta',      { opacity: 0, y: 10 },  { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.2')
       .fromTo('#hero-scroll',   { opacity: 0 },          { opacity: 1, duration: 0.4 },                           '-=0.1');
-
+ 
     gsap.fromTo('#scrollLine',
       { scaleX: 0, transformOrigin: 'left' },
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.5 }
     );
+  } else {
+    gsap.set('#hero-scroll', { opacity: 1 });
+    gsap.fromTo('#scrollLine',
+      { scaleX: 0, transformOrigin: 'left' },
+      { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true }
+    );
   }
 
-  // ─── Lang sync ────────────────────────────────────────────────────────────
+  // ─── SCROLLTRIGGER MATCHMEDIA ─────────────────────────────────────────────
+  ScrollTrigger.matchMedia({
+    // MOBILE: Transparencia pura con el scroll y fijación limpia
+    "(max-width: 767px)": function() {
+      gsap.set('#hero-text-container', { opacity: 0 });
+      gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 1 });
+
+      const mobileTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#hero-section',
+          start: 'top top',
+          end: '+=150%', 
+          scrub: true,
+          pin: true,    
+          anticipatePin: 1
+        }
+      });
+
+      mobileTl
+        .to('#hero-scroll', { opacity: 0, duration: 0.2 }, 0)
+        .to('#hero-text-container', { opacity: 1, duration: 0.5, ease: 'power1.out' }, 0.1)
+        .to({}, { duration: 0.4 }) // Pausa de lectura centrado
+        .to(['#hero-text-container', '#heroCanvas'], { opacity: 0, duration: 0.4, ease: 'power1.in' });
+    },
+
+    // DESKTOP
+    "(min-width: 768px)": function() {
+      gsap.set('#hero-text-container', { opacity: 1 });
+      gsap.set('#hero-scroll', { opacity: 1 });
+    }
+  });
+ 
+  // ─── LANG SYNC ────────────────────────────────────────────────────────────
   function applyLangToHero(lang: 'es' | 'en') {
-    document.querySelectorAll<HTMLElement>('#hero-eyebrow, #hero-tagline, #hero-cta a, #hero-scroll span').forEach(el => {
+    document.querySelectorAll<HTMLElement>('#hero-eyebrow, #hero-tagline, #hero-scroll span').forEach(el => {
       const val = el.dataset[lang];
       if (val) el.textContent = val;
     });
