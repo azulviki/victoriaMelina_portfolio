@@ -329,13 +329,24 @@
           { opacity: 0 },        { opacity: 1, duration: 0.4, ease: 'power1.out' },        '-=0.1');
     }
 
-    heroScrollBtn.addEventListener('touchend', (e) => {
-      e.preventDefault(); // evita que el tap dispare scroll accidental
-      revealHeroMobile();
-    }, { passive: false });
+    // ★ Se dispara al pasar el dedo por encima (touchmove sobre el documento)
+document.addEventListener('touchmove', (e) => {
+  if (heroRevealed) return;
+  const touch = e.touches[0];
+  const rect = heroScrollBtn.getBoundingClientRect();
+  // Área de hit generosa: 48px extra arriba/abajo para facilitar el gesto
+  if (
+    touch.clientX >= rect.left - 24 &&
+    touch.clientX <= rect.right + 24 &&
+    touch.clientY >= rect.top - 48 &&
+    touch.clientY <= rect.bottom + 48
+  ) {
+    revealHeroMobile();
+  }
+}, { passive: true });
 
-    // ★ Fallback por si usan click (simuladores, etc.)
-    heroScrollBtn.addEventListener('click', revealHeroMobile);
+// Fallback click para simuladores
+heroScrollBtn.addEventListener('click', revealHeroMobile);
   }
 
   // ─── SCROLLTRIGGER MATCHMEDIA ─────────────────────────────────────────────
