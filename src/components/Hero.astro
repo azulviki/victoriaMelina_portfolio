@@ -23,27 +23,40 @@
         >Realizadora audiovisual & VJ</p>
 
         <!-- H1: Mide exactamente lo mismo tanto en mobile como en desktop -->
-        <h1
-          id="hero-name"
-          class="hero-title relative z-40 opacity-0 cursor-pointer block mb-2 w-full"
-          style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(2.2rem, 9vw, 6.5rem); line-height: 0.95;"
-        >
-          <!-- En mobile se estiran las letras; en desktop se comportan como bloques alineados -->
-          <span class="row-name-mobile block md:hidden mb-1">
-            <span>V</span><span>I</span><span>C</span><span>T</span><span>O</span><span>R</span><span>I</span><span>A</span>
-          </span>
-          <span class="row-name-mobile block md:hidden">
-            <span>M</span><span>E</span><span>L</span><span>I</span><span>N</span><span>A</span>
-          </span>
+        <!-- H1: El contenedor bloquea eventos, solo los span internos con texto los reciben si es necesario -->
+<h1
+  id="hero-name"
+  class="hero-title relative z-40 opacity-0 block mb-2 w-full pointer-events-none"
+  style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(2.2rem, 9vw, 6.5rem); line-height: 0.95;"
+>
+  <!-- 📱 VISTA MOBILE -->
+  <span class="row-name-mobile block md:hidden mb-1 pointer-events-none">
+    <span>V</span><span>I</span><span>C</span><span>T</span><span>O</span><span>R</span><span>I</span><span>A</span>
+  </span>
+  <span class="row-name-mobile block md:hidden pointer-events-none">
+    <span>M</span><span>E</span><span>L</span><span>I</span><span>N</span><span>A</span>
+  </span>
 
-          <!-- Desktop nativo: alineación perfecta borde a borde -->
-          <span class="hidden md:flex w-full justify-between pointer-events-auto">
-            <span>V</span><span>I</span><span>C</span><span>T</span><span>O</span><span>R</span><span>I</span><span>A</span>
-          </span>
-          <span class="hidden md:flex w-full justify-between pointer-events-auto mt-1">
-            <span>M</span><span>E</span><span>L</span><span>I</span><span>N</span><span>A</span>
-          </span>
-        </h1>
+  <!-- 🖥️ VISTA DESKTOP: Añadimos cursor-pointer solo si querés interactuar con el nombre, sino dejalos en pointer-events-none -->
+  <span class="hidden md:flex w-full justify-between pointer-events-none">
+    <span class="pointer-events-auto cursor-pointer">V</span>
+    <span class="pointer-events-auto cursor-pointer">I</span>
+    <span class="pointer-events-auto cursor-pointer">C</span>
+    <span class="pointer-events-auto cursor-pointer">T</span>
+    <span class="pointer-events-auto cursor-pointer">O</span>
+    <span class="pointer-events-auto cursor-pointer">R</span>
+    <span class="pointer-events-auto cursor-pointer">I</span>
+    <span class="pointer-events-auto cursor-pointer">A</span>
+  </span>
+  <span class="hidden md:flex w-full justify-between pointer-events-none mt-1">
+    <span class="pointer-events-auto cursor-pointer">M</span>
+    <span class="pointer-events-auto cursor-pointer">E</span>
+    <span class="pointer-events-auto cursor-pointer">L</span>
+    <span class="pointer-events-auto cursor-pointer">I</span>
+    <span class="pointer-events-auto cursor-pointer">N</span>
+    <span class="pointer-events-auto cursor-pointer">A</span>
+  </span>
+</h1>
 
         <p
           id="hero-alias"
