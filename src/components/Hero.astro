@@ -304,6 +304,7 @@
       { scaleX: 0, transformOrigin: 'left' },
       { scaleX: 1, duration: 1, ease: 'power1.inOut', repeat: -1, yoyo: true, delay: 1.5 }
     );
+
  } else {
     // 1️⃣ CONFIGURACIÓN INICIAL EN MOBILE
     gsap.set('#hero-text-container', { opacity: 0, pointerEvents: 'none' });
@@ -316,35 +317,32 @@
     );
 
     let heroRevealed = false;
+    let textAnimationDone = false;
     const scrollZone = document.getElementById('hero-scroll-zone')!;
 
-    // 2️⃣ BLOQUEO DE SCROLL PREDETERMINADO
-    // Evita que la pantalla se mueva en cualquier dirección al arrastrar el dedo
+    // 2️⃣ BLOQUEO ESTRICTO POR DEFECTO
+    // Bloqueamos por completo el movimiento nativo en todo el viewport al aterrizar
     function blockMobileScroll(e: TouchEvent) {
-      if (!heroRevealed) {
-        e.preventDefault();
-      }
+      e.preventDefault();
     }
     window.addEventListener('touchmove', blockMobileScroll, { passive: false });
 
-    // 3️⃣ FUNCIÓN DE REVELACIÓN DEL TEXTO
+    // 3️⃣ FUNCIÓN DE REVELACIÓN (Se ejecuta de forma controlada)
     function revealHeroMobile() {
       if (heroRevealed) return;
       heroRevealed = true;
 
-      // Apagamos la interacción del canvas para que no interfiera con los hovers/links del texto
+      // Apagamos la interacción del canvas para no molestar a los links del texto
       canvasInteractionEnabled = false;
       canvas.style.pointerEvents = 'none';
 
-      // Mostramos el contenedor del texto
+      // Mostramos el contenedor de texto
       gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
       
-      // Timeline para la aparición estética de tu información
       const tl = gsap.timeline({
         onComplete: () => {
-          // 4️⃣ RE-ACTIVACIÓN DEL SCROLL: Una vez que el texto se renderizó por completo,
-          // eliminamos el bloqueo estricto. El usuario ahora debe VOLVER a realizar un scroll para avanzar.
-          window.removeEventListener('touchmove', blockMobileScroll);
+          // La animación terminó, pero el scroll SIGUE bloqueado por el 'touchmove' global.
+          textAnimationDone = true;
         }
       });
 
@@ -355,30 +353,41 @@
         .fromTo('#hero-tools',    { opacity: 0 },         { opacity: 1, duration: 0.4, ease: 'power1.out' },       '-=0.15');
     }
 
-    // 5️⃣ LISTENERS PARA LA FRANJA INFERIOR A LO ANCHO
-    // Opción A: Captura si el usuario hace un gesto de arrastre/scroll sobre la franja inferior
+    // 4️⃣ CAPTURA DEL GESTO DE SCROLL EN LA ZONA INFERIOR
+    // Cuando el usuario desliza el dedo en la franja, disparamos la animación pero la pantalla NO se mueve
     scrollZone.addEventListener('touchmove', (e) => {
       if (!heroRevealed) {
-        e.stopPropagation(); // Evita activar las partículas del fondo al realizar el gesto de scroll
+        e.stopPropagation(); 
         revealHeroMobile();
       }
     }, { passive: true });
 
-    // Opción B: Captura si el usuario hace un tap rápido en cualquier punto de la franja a lo ancho
+    // 🎯 LA CLAVE DEL SEGUNDO PASO: El evento 'touchend'
+    // Escuchamos el momento exacto en que el usuario levanta el dedo de la pantalla
+    window.addEventListener('touchend', () => {
+      // Solo si el texto ya se reveló por completo y el usuario levantó el dedo...
+      if (heroRevealed && textAnimationDone) {
+        // ...destruimos el bloqueo global de scroll. 
+        // El viewport queda libre, obligando al usuario a realizar un NUEVO scroll físico para bajar.
+        window.removeEventListener('touchmove', blockMobileScroll);
+      }
+    });
+
+    // Mantener el comportamiento del tap por si hacen click directo en la franja
     scrollZone.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       
       if (!heroRevealed) {
         revealHeroMobile();
-      } else {
-        // Si ya está revelado y vuelven a tocar la zona inferior, funciona como atajo hacia abajo
+      } else if (textAnimationDone) {
         const nextSection = document.querySelector('section:not(#hero-section)');
         if (nextSection) {
           nextSection.scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
+  
   
 
     }
