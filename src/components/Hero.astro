@@ -80,8 +80,7 @@
 
  <div 
   id="hero-scroll-zone" 
-  class="absolute bottom-0 left-0 w-full h-24 z-50 pointer-events-auto cursor-pointer flex items-center select-none px-6 md:px-16 lg:px-24"
->
+  class="absolute bottom-0 left-0 w-full h-24 z-50 pointer-events-auto cursor-pointer flex items-center select-none px-6 md:px-16 lg:px-24">
   <div id="hero-scroll-visual" class="flex items-end justify-between w-full transition-transform duration-200 active:scale-95">
     <div class="w-px h-12 overflow-hidden">
       <div class="w-full h-full bg-gradient-to-b from-transparent to-violet origin-top"></div>
@@ -98,22 +97,24 @@
 </section>
 
 
-<!-- Script para la navegación interactiva -->
 <script>
-  // Eventos para scroll automático al hacer clic en las profesiones
-  document.querySelectorAll('[data-link-category]').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const targetCategory = (e.currentTarget as HTMLElement).getAttribute('data-link-category');
-      const targetSection = document.querySelector(`[data-category="${targetCategory}"]`);
-      
-      if (targetSection) {
-        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+  // Click en professions → filtra Works por categoría
+  document.querySelectorAll('[data-link-category]').forEach(el => {
+    el.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('worksFilter', {
+        detail: { tool: el.getAttribute('data-link-category') }
+      }));
     });
   });
 
-  // Aquí podés conectar los listeners de 'data-tag-tool' si querés que las partículas 
-  // reaccionen al pasar el mouse por arriba de los tags de software.
+  // Click en tags → filtra Works por tool
+  document.querySelectorAll('[data-tag-tool]').forEach(el => {
+    el.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('worksFilter', {
+        detail: { tool: el.getAttribute('data-tag-tool') }
+      }));
+    });
+  });
 </script>
 
 <script>

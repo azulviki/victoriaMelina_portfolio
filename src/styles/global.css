@@ -188,6 +188,10 @@
   transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.hero-tag-item:hover {
+  color: var(--violet);
+}
+
 .hero-tag-item {
   display: inline-block !important;
   white-space: nowrap !important;
