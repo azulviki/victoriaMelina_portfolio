@@ -103,6 +103,7 @@
   color: var(--color-brand-dark);
   transition: color 0.3s ease-in-out;
   width: 100%;
+  pointer-events: auto; /* reactiva el mouse solo para este elemento */
 }
 
 .hero-title:hover {
@@ -135,72 +136,155 @@
   pointer-events: auto; /* Forzamos a que el canvas siempre escuche el mouse */
 }
 
-/* El contenedor de texto general debe dejar pasar el mouse por completo */
-#hero-text-container {
-  z-index: 20;
-  pointer-events: none !important; 
-}
+/* ==========================================================================
+   ELEMENTOS INTERACTIVOS (PROFESIONES RECONFIGURADAS)
+   ========================================================================== */
 
-/* Los bloques estructurales internos TAMBIÉN deben dejar pasar el mouse */
-.hero-box,
-.hero-top-block,
-.hero-bottom-block {
-  pointer-events: none !important;
-}
-
-/* 🎯 REGLA DE ORO: Solo los elementos de texto específicos reaccionan al mouse (hovers) */
-#hero-eyebrow,
-#hero-alias,
-#hero-tagline,
-#hero-tools span,
-.row-name-mobile span,
-.hero-title span span {
-  pointer-events: auto; /* Solo las letras y botones bloquean el canvas */
-}
-
-/* El resto del CSS de alineación se mantiene igual */
-@media (min-width: 768px) {
-  .hero-top-block {
-    width: max-content;
-    min-width: max-content;
-  }
-  .hero-bottom-block {
-    width: 100%;
-    max-width: max-content;
-  }
-}
-
-/* Elementos de software interactivos */
+/* Elementos de profesión (Reposo) */
 .hero-tool-item {
   display: inline-block;
-  color: #94a3b8;
-  transition: color 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* 🎨 Sincronización de color con el H1 (Blanco) */
+  color:var(--blue) !important; 
+  
+  font-size: 0.95rem; 
+  transform-origin: center;
+  
+  /* ⚡ Transición ultra fluida para tracking, color y posición física */
+  transition: 
+    letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* 🚀 Efecto Hover: Animación hacia arriba y cambio de color al de la tagline */
 .hero-tool-item:hover {
-  color: var(--violet);
-  transform: translateY(-4px);
+  /* 🎨 Toma el color exacto de tu #hero-tagline (var(--blue)) */
+  color: var(--violet) !important; 
+  
+  /* ⬆️ Se desplaza elegantemente hacia arriba */
+  transform: translateY(-6px); 
 }
 
-/* Animación del Spread (Expansión de tracking) */
-.hero-spread {
-  display: block;
-  transition: letter-spacing 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+
+/* ==========================================================================
+   ANIMACIÓN DE ENTRADA Y CONTENEDOR (ALINEACIÓN INMUTABLE MOBILE)
+   ========================================================================== */
+
+#hero-tags {
+  opacity: 0;
+  transform: translateY(14px);
+
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;        /* ahora puede bajar de línea */
+
+  justify-content: center !important;
+  align-items: center;
+  gap: 6px 10px;                     /* separación entre filas y entre tags */
+  width: 100% !important;
+  overflow: visible !important;
+
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-spread:hover {
-  letter-spacing: 0.05em;
+.hero-tag-item {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  color: rgba(148, 163, 184, 0.6);
+
+  font-size: 0.75rem !important;
+  letter-spacing: 0.02em !important;
+
+  transition: letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+/* ⚡ DISPARADORES DE ENTRADA (Siguen intactos) */
+#hero-text-container:not(.opacity-0) #hero-tags {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 2s; 
+}
+
+#hero-text-container[style*="opacity: 1"] #hero-tags {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 2s;
+}
+
+/* ==========================================================================
+   VARIACIONES PARA DESKTOP (VUELVE A SER GIGANTE Y DE PUNTA A PUNTA)
+   ========================================================================== */
+@media (min-width: 768px) {
+  #hero-tags {
+    /* En pantallas grandes vuelve a ocupar todo el ancho del H1 */
+    justify-content: space-between !important;
+    gap: 0;
+  }
+
+  .hero-tool-item {
+    font-size: 1.1rem; 
+  }
+
+  .hero-tag-item {
+    /* Recupera su escala premium en monitores */
+    font-size: 0.9rem !important; 
+    letter-spacing: -0.02em !important;
+  }
+}
+
+/* ==========================================================================
+   ANIMACIÓN DEL SPREAD COORDINADO Y VJ BLUH
+   ========================================================================== */
+
+/* VJ BLUH Alias */
+#hero-alias {
+  transition: letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+#hero-alias:hover {
+  letter-spacing: 0.45em;
+  color: var(--color-brand-light);
+}
+
+/* Tagline Config */
+#hero-tagline {
+  color: var(--color-brand-light);
+  transition: letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+#hero-tagline:hover {
   color: var(--color-brand-light);
 }
 
 @media (min-width: 768px) {
-  .hero-spread:hover {
-    letter-spacing: 0.18em; /* Se estira en desktop e influye en el ancho de las tools de abajo */
+  /* Inicialización de tracking en desktop */
+  #hero-tagline { letter-spacing: 0px; }
+  .hero-tool-item { letter-spacing: -0.01em; }
+  .hero-tag-item { letter-spacing: -0.02em; }
+
+  /* ⚡ REACCIÓN EN CADENA: Al hacer hover en tagline, todo se expande en sincronía */
+  #hero-tagline:hover {
+    letter-spacing: 0.18em;
   }
+  
+  #hero-tagline:hover ~ #hero-tools .hero-tool-item {
+    letter-spacing: 0.18em;
+  }
+
+  #hero-tagline:hover ~ #hero-tags .hero-tag-item {
+    letter-spacing: 0.15em;
+  }
+}
+
+/* Eyebrow superior independiente */
+#hero-eyebrow.hero-spread {
+  transition: letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #hero-eyebrow.hero-spread:hover {
   letter-spacing: 0.30em;
+  transform: translateY(-4px);
 }
 
 @media (min-width: 768px) {
@@ -209,32 +293,8 @@
   }
 }
 
-#hero-eyebrow {
-  color: var(--blue);
-}
-
-#hero-eyebrow:hover {
-  color: var(--blue);
-  transform: translateY(-4px);
-}
-
-/* Botones con bordes animados */
-.btn-hero {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 0.9rem 1.5rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  border-radius: 4px;
-  cursor: pointer;
-  overflow: hidden;
-  text-decoration: none;
-  color: #f0f0f8;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: color 0.3s ease, transform 0.2s ease, border-color 0.3s ease, letter-spacing 0.35s ease;
+.hero-bottom-block {
+  pointer-events: auto !important;
 }
 
 .btn-hero::before {
