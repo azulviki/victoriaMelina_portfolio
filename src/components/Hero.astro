@@ -462,4 +462,17 @@ document.querySelectorAll<HTMLElement>('[data-works-tool]').forEach(el => {
     const tool = el.dataset.worksTool!;
     window.dispatchEvent(new CustomEvent('worksFilter', { detail: { tool } }));
   });
+
+  // Al final de tu script del hero, agregás esto:
+const canvas = document.getElementById('heroCanvas');
+const worksSection = document.getElementById('works-section');
+
+if (canvas && worksSection) {
+  const observer = new IntersectionObserver(([entry]) => {
+    canvas.style.pointerEvents = entry.isIntersecting ? 'none' : 'auto';
+  }, { threshold: 0.1 });
+
+  observer.observe(worksSection);
+}
+
 });
