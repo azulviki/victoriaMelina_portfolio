@@ -243,22 +243,32 @@
     height: 100% !important;
     /* CLAVE: Ponemos el padding de arriba en 0 para que el video toque el techo */
     padding: 0rem !important; 
+    /* El slide reparte su alto real entre video + texto, en vez de que
+       cada uno calcule un % de la pantalla por su cuenta */
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   /* El video ahora nace desde el pixel 0 de arriba y ocupa su espacio cinematográfico */
   .slide-video {
     width: 100vw !important;
-    height: 65vh !important;    
-    max-height: 65vh !important;
+    /* Ya no se calcula contra 100vh: se le da una proporción flexible
+       pero con un tope, y el texto se queda con todo el resto real */
+    flex: 0 1 65%;
+    height: auto !important;
+    max-height: 65%;
+    min-height: 0;
     border-radius: 0rem !important; 
   }
 
-  /* El texto abajo fluye de manera perfecta */
+  /* El texto abajo fluye de manera perfecta y ocupa exactamente lo que sobra */
   .slide-info {
     padding: 1.2rem 1.2rem 2rem 1.2rem !important; 
-    max-height: calc(100vh - 65vh) !important;
+    flex: 1 1 auto;
+    max-height: none !important;
     overflow-y: auto !important; 
     width: 100% !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   .works-nav-btn {
