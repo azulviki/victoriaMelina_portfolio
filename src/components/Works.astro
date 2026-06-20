@@ -157,7 +157,7 @@
   align-items: center !important;
   
   padding: 1.5rem 0.75rem 0 0.75rem !important; 
-  min-height: 0 !important; /* necesario para que los hijos flex puedan limitar su propia altura */
+  min-height: 0 !important;
 }
 
 .work-slide[data-hidden="true"] {
@@ -180,10 +180,8 @@
   position: relative;
   width: 100% !important;
   
-  /* Eliminamos el aspect-ratio fijo para que responda 100% a la altura que le pedimos */
   aspect-ratio: auto !important;      
   
-  /* Subido al 68% del alto de la pantalla para que baje con un look súper cinematográfico */
   height: 68dvh !important;    
   max-height: 68dvh !important;
   
@@ -191,7 +189,8 @@
   overflow: hidden;
   background: #000;
   z-index: 2;
-  flex-shrink: 0 !important;
+  flex-shrink: 1 !important;
+  min-height: 0 !important;
 }
 
 .slide-video iframe {
@@ -207,11 +206,12 @@
 /* --- 6. TEXTOS (Alineados milimétricamente con el video) --- */
 .slide-info {
   position: relative;
-  width: 100% !important; /* Copia el mismo ancho del video */
+  width: 100% !important;
   box-sizing: border-box !important;
   padding: 1.5rem 0.25rem 2.5rem !important;
   text-align: left !important;
   z-index: 3;
+  flex-shrink: 0 !important;
 }
 
 /* =========================================================
@@ -293,6 +293,8 @@
   .slide-video {
     height: 75dvh !important;    
     max-height: 75dvh !important;
+    flex-shrink: 1 !important;
+    min-height: 0 !important;
   }
 
   .slide-info {
