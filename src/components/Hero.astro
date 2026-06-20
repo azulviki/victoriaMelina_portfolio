@@ -335,22 +335,22 @@
     let fingerIsDown = false;
     const scrollZone = document.getElementById('hero-scroll-zone')!;
 
-    function revealHeroMobile() {
-      if (heroRevealed) return;
-      heroRevealed = true;
+ function revealHeroMobile() {
+  if (heroRevealed) return;
+  heroRevealed = true;
 
-      // Apagamos interacción con partículas solo tras activarse el reveal
-      canvasInteractionEnabled = false;
-      canvas.style.pointerEvents = 'none';
+  canvasInteractionEnabled = false;
+  canvas.style.pointerEvents = 'none';
+  
+  // 🎯 ¡CLAVE!: Desactivamos los pointer-events de la zona de scroll 
+  // para que deje de capturar los gestos del dedo en mobile
+  if (scrollZone) {
+    scrollZone.style.pointerEvents = 'none';
+  }
 
-      gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
-      
-      const tl = gsap.timeline({
-        onComplete: () => {
-          textAnimationDone = true;
-          if (!fingerIsDown) liberarScrollNativo();
-        }
-      });
+  gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
+  // ... resto de tu línea de tiempo
+}
 
       tl.fromTo('#hero-eyebrow',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
         .fromTo('#hero-name',     { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15')
@@ -360,10 +360,10 @@
     }
 
     function liberarScrollNativo() {
-  // Así se remueven las clases de forma segura sin romper el DOM
-  document.documentElement.classList.remove('lock-scroll');
-  document.body.classList.remove('lock-scroll');
-}
+     // Así se remueven las clases de forma segura sin romper el DOM
+     document.documentElement.classList.remove('lock-scroll');
+     document.body.classList.remove('lock-scroll');
+     }
 
     // El reveal se ejecuta ÚNICAMENTE al interactuar en la scrollZone
     scrollZone.addEventListener('touchstart', () => { fingerIsDown = true; }, { passive: true });
@@ -382,21 +382,27 @@
         document.querySelector('section:not(#hero-section)')?.scrollIntoView({ behavior: 'smooth' });
       }
     });
-  }
+  
 
   // ─── 4. SCROLLTRIGGER MATCHMEDIA ─────────────────────────────────────────
   ScrollTrigger.matchMedia({
     "(max-width: 767px)": function() {
-      ScrollTrigger.create({
-        trigger: '#hero-section',
-        start: 'top top',
-        end: '+=80%', 
-        scrub: true,
-        onUpdate(self) {
-          gsap.set(['#hero-text-container', '#heroCanvas', '#hero-scroll-zone'], { opacity: 1 - self.progress });
-        }
-      });
+  ScrollTrigger.create({
+    trigger: '#hero-section',
+    start: 'top top',
+    end: '+=80%', 
+    scrub: true,
+    onUpdate(self) {
+      const opacity = 1 - self.progress;
+      gsap.set(['#hero-text-container', '#heroCanvas'], { opacity });
+      
+      // Si volvemos arriba del todo, le devolvemos la interacción al contenedor de texto
+      if (self.progress < 0.1) {
+        gsap.set('#hero-text-container', { pointerEvents: 'auto' });
+      }
     }
+  });
+}
   });
 
   // ─── 5. INTERSECTION OBSERVER (Usando la variable global 'canvas') ────────
