@@ -156,8 +156,8 @@
   justify-content: flex-start !important;
   align-items: center !important;
   
-  /* Ajustado para que el video flote casi pegado a los límites del cristal */
   padding: 1.5rem 0.75rem 0 0.75rem !important; 
+  min-height: 0 !important; /* necesario para que los hijos flex puedan limitar su propia altura */
 }
 
 .work-slide[data-hidden="true"] {
@@ -169,7 +169,9 @@
   display: flex !important;
   flex-direction: column !important;
   width: 100% !important;
+  height: 100% !important;
   align-items: center !important;
+  min-height: 0 !important;
 }
 
 
@@ -278,26 +280,28 @@
 
 /* --- COMPUTADORAS (Desktop) --- */
 @media (min-width: 768px) {
-  /* Expandimos el contenedor para que aproveche pantallas ultra-wide */
   #works-track-wrapper {
     max-width: 1850px !important; 
   }
 
-  /* Reducimos el aire a los costados para que el video gane un ancho tremendo */
   .work-slide {
     padding-left: 2rem !important;
     padding-right: 2rem !important;
-    padding-top: 1rem !important; /* Lo subimos un poquito más arriba */
+    padding-top: 1rem !important;
   }
 
-  /* Le damos una altura masiva y ultra cinematográfica al reproductor */
   .slide-video {
     height: 75dvh !important;    
     max-height: 75dvh !important;
   }
 
-  /* Ajustamos las flechas para que sigan quedando por fuera del video 
-     pero bien integradas en esos 2rem de margen limpio */
+  .slide-info {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   #works-prev {
     left: 0.5rem !important;        
   }
