@@ -323,133 +323,114 @@
       .fromTo('#hero-tools',    { opacity: 0 },          { opacity: 1, duration: 0.5, ease: 'power1.out' },       '-=0.1');
  
   } else {
-  // 1️⃣ CONFIGURACIÓN INICIAL EN MOBILE ESTRICTA
-  gsap.set('#hero-text-container', { opacity: 0, pointerEvents: 'none' });
-  gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 0 });
+    // ─── MOBILE: ESTADO INICIAL ──────────────────────────────────────────
+    gsap.set('#hero-text-container', { opacity: 0, pointerEvents: 'none' });
+    gsap.set(['#hero-eyebrow', '#hero-name', '#hero-alias', '#hero-tagline', '#hero-tools'], { opacity: 0 });
 
-  document.documentElement.classList.add('lock-scroll');
-  document.body.classList.add('lock-scroll');
+    document.documentElement.classList.add('lock-scroll');
+    document.body.classList.add('lock-scroll');
 
-  let heroRevealed = false;
-  let textAnimationDone = false;
-  let fingerIsDown = false;
-  const scrollZone = document.getElementById('hero-scroll-zone')!;
+    let heroRevealed = false;
+    let textAnimationDone = false;
+    const scrollZone = document.getElementById('hero-scroll-zone')!;
 
-  // Aseguramos que la scroll-zone sea interactiva al inicio
-  if (scrollZone) {
-    scrollZone.style.pointerEvents = 'auto';
-  }
+    if (scrollZone) {
+      scrollZone.style.pointerEvents = 'auto';
+    }
 
-  // 2️⃣ FUNCIÓN DE REVELACIÓN DEL TEXTO
-  function revealHeroMobile() {
-    if (heroRevealed) return;
-    heroRevealed = true;
+    // ─── REVELADO DEL TEXTO ───────────────────────────────────────────────
+    function revealHeroMobile() {
+      if (heroRevealed) return;
+      heroRevealed = true;
 
-    // Apagamos la interacción de partículas del canvas de fondo
-    //canvasInteractionEnabled = false;
-    //canvas.style.pointerEvents = 'none';
+      // 🎯 CLAVE: apagamos la interacción de partículas EN EL MOMENTO DEL TOQUE,
+      // no al terminar la animación. Esto es lo que pediste: tocar la scroll-zone
+      // mata la reacción de las partículas de inmediato.
+      canvasInteractionEnabled = false;
+      canvas.style.pointerEvents = 'none';
 
-    // Mostramos el contenedor de texto y activamos sus links/botones
-    gsap.set('#hero-text-container', { opacity: 1, pointerEvents: 'auto' });
-    
-    const tl = gsap.timeline({
-      onComplete: () => {
-        textAnimationDone = true;
-        
-        // Apagamos la scroll-zone vieja
-        if (scrollZone) {
-          scrollZone.style.pointerEvents = 'none';
-        }
+      // Mostramos el contenedor de texto (todavía sin pointer-events,
+      // se lo damos recién cuando termine la animación)
+      gsap.set('#hero-text-container', { opacity: 1 });
 
-        // 🎯 LA CLAVE: Apagamos los pointer-events del contenedor gigante para que deje de tapar las secciones de abajo
-        gsap.set('#hero-text-container', { pointerEvents: 'none' });
+      const tl = gsap.timeline({
+        onComplete: () => {
+          textAnimationDone = true;
 
-        if (!fingerIsDown) {
+          // Apagamos la scroll-zone vieja, ya cumplió su función
+          if (scrollZone) {
+            scrollZone.style.pointerEvents = 'none';
+          }
+
+          // Recién ahora habilitamos los clicks en tags / professions del hero
+          gsap.set('#hero-text-container', { pointerEvents: 'auto' });
+
+          // Y liberamos el scroll nativo de la página
           liberarScrollNativo();
         }
+      });
+
+      tl.fromTo('#hero-eyebrow',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
+        .fromTo('#hero-name',     { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15')
+        .fromTo('#hero-alias',    { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.25')
+        .fromTo('#hero-tagline',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+        .fromTo('#hero-tools',    { opacity: 0 },          { opacity: 1, duration: 0.4, ease: 'power1.out' },       '-=0.15');
+    }
+
+    function liberarScrollNativo() {
+      document.documentElement.classList.remove('lock-scroll');
+      document.body.classList.remove('lock-scroll');
+    }
+
+    // ─── DETECCIÓN DE INTERACCIÓN EN LA SCROLL ZONE ────────────────────────
+    // Tanto un toque (touchstart) como un intento de scroll (touchmove)
+    // disparan la revelación. Una vez revelado, esta zona deja de hacer nada
+    // (su pointer-events se apaga al terminar la animación).
+    scrollZone.addEventListener('touchstart', () => {
+      if (!heroRevealed) revealHeroMobile();
+    }, { passive: true });
+
+    scrollZone.addEventListener('touchmove', () => {
+      if (!heroRevealed) revealHeroMobile();
+    }, { passive: true });
+
+    scrollZone.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!heroRevealed) {
+        revealHeroMobile();
+      } else if (textAnimationDone) {
+        document.querySelector('section:not(#hero-section)')?.scrollIntoView({ behavior: 'smooth' });
       }
     });
+  } // <--- cierra el else de mobile
 
-    tl.fromTo('#hero-eyebrow',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
-      .fromTo('#hero-name',     { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15')
-      .fromTo('#hero-alias',    { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.25')
-      .fromTo('#hero-tagline',  { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.2')
-      .fromTo('#hero-tools',    { opacity: 0 },          { opacity: 1, duration: 0.4, ease: 'power1.out' },       '-=0.15');
-  }
+  // ─── SCROLLTRIGGER MATCHMEDIA (solo para el fade de salida en mobile) ────
+  ScrollTrigger.matchMedia({
+    "(max-width: 767px)": function() {
+      ScrollTrigger.create({
+        trigger: '#hero-section',
+        start: 'top top',
+        end: '+=80%',
+        scrub: true,
+        onUpdate(self) {
+          const clampedProgress = Math.min(Math.max(self.progress, 0), 1);
 
-  function liberarScrollNativo() {
-    document.documentElement.classList.remove('lock-scroll');
-    document.body.classList.remove('lock-scroll');
-  }
+          // El texto se va desvaneciendo a medida que el usuario sigue scrolleando
+          gsap.set('#hero-text-container', { opacity: 1 - clampedProgress });
 
-  // 3️⃣ DETECCIÓN DE INTERACCIÓN EN LA SCROLL ZONE
-  scrollZone.addEventListener('touchstart', () => { 
-    fingerIsDown = true; 
-  }, { passive: true });
+          // Las partículas bajan suavemente de opacidad
+          const canvasOpacity = 1 - (clampedProgress * 0.75);
+          gsap.set('#heroCanvas', { opacity: canvasOpacity });
 
-  scrollZone.addEventListener('touchmove', () => { 
-    if (!heroRevealed) revealHeroMobile(); 
-  }, { passive: true });
-
-  window.addEventListener('touchend', () => {
-    fingerIsDown = false;
-    // 🎯 CLAVE: Si ya se reveló el hero, limpiamos el bloqueo de scroll sin importar nada más
-    if (heroRevealed) {
-      liberarScrollNativo();
-    }
-  });
-
-  scrollZone.addEventListener('click', (e) => {
-    e.preventDefault(); 
-    e.stopPropagation();
-    
-    if (!heroRevealed) {
-      revealHeroMobile();
-    } else if (textAnimationDone) {
-      document.querySelector('section:not(#hero-section)')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-} // <--- AQUÍ CIERRA EL ELSE DE MOBILE
-
- // ─── 4. SCROLLTRIGGER MATCHMEDIA (SWITCH INTELIGENTE DE INTERACCIÓN) ───────
-ScrollTrigger.matchMedia({
-  "(max-width: 767px)": function() {
-    ScrollTrigger.create({
-      trigger: '#hero-section',
-      start: 'top top',
-      end: '+=80%', 
-      scrub: true,
-      onUpdate(self) {
-        const clampedProgress = Math.min(Math.max(self.progress, 0), 1);
-        
-        // El texto desaparece al bajar
-        gsap.set('#hero-text-container', { opacity: 1 - clampedProgress });
-        
-        // Las partículas bajan suavemente al 25%
-        const canvasOpacity = 1 - (clampedProgress * 0.75);
-        gsap.set('#heroCanvas', { opacity: canvasOpacity });
-
-        // 🎯 EL TRUCO: Switch de eventos según la posición del scroll
-        if (clampedProgress > 0.05) {
-          // Si el usuario ya empezó a bajar, liberamos el canvas para que pase el scroll nativo
-          canvas.style.pointerEvents = 'none';
-          canvasInteractionEnabled = false;
-          
-          document.documentElement.classList.remove('lock-scroll');
-          document.body.classList.remove('lock-scroll');
-        } else {
-          // Si está arriba de todo (en el Hero), reactivamos la interacción de partículas
-          if (heroRevealed) {
-            // Solo si ya se reveló el texto permitimos que el contenedor no moleste
-            gsap.set('#hero-text-container', { pointerEvents: 'auto' });
-          }
-          canvas.style.pointerEvents = 'auto';
-          canvasInteractionEnabled = true;
+          // Nota: ya NO reactivamos canvasInteractionEnabled acá.
+          // Una vez revelado el hero, las partículas quedan desactivadas
+          // para siempre en esta sesión de scroll, como pediste.
         }
-      }
-    });
-  }
-});
+      });
+    }
+  });
 
   // ─── 6. FILTROS DE TRABAJOS ──────────────────────────────────────────────
   document.querySelectorAll('[data-link-category]').forEach(el => {
