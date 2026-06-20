@@ -47,6 +47,7 @@
             playsinline
             preload="auto"
             poster="/images/sobremi-poster.jpg"
+            onerror="this.insertAdjacentHTML('afterend', '<p style=\'color:red;font-size:10px;position:absolute;top:0;left:0;background:#fff;z-index:99;padding:4px\'>VIDEO ERROR: ' + (this.error ? this.error.code : 'unknown') + '</p>')"
           >
             <source src="/src/content/hiro.mp4" type="video/mp4" />
           </video>
@@ -152,7 +153,7 @@
     );
     videoObserver.observe(sobremiVideo);
   }
-  
+
   // ─── PARTÍCULAS AMBIENTALES DE FONDO ─────────────────────────────────────
   // Versión liviana y sin interacción del canvas del Hero: solo atmósfera,
   // con opacidad baja para no competir con el texto ni el video.
