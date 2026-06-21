@@ -1,5 +1,11 @@
 ---
 // src/components/SobreMi.astro
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+
+const videoSrc = `${base}videos/sobremi.mp4`;
+const posterSrc = `${base}images/sobremi-poster.jpg`;
 ---
 
 <section id="sobremi-section" class="sobremi relative w-full bg-[#080810] overflow-hidden flex items-center" style="min-height: calc(100dvh - 72px);">
@@ -49,7 +55,7 @@
             poster="/images/sobremi-poster.jpg"
             onerror="this.insertAdjacentHTML('afterend', '<p style=\'color:red;font-size:10px;position:absolute;top:0;left:0;background:#fff;z-index:99;padding:4px\'>VIDEO ERROR: ' + (this.error ? this.error.code : 'unknown') + '</p>')"
           >
-            <source src="public/videos/sobremi.mp4" type="video/mp4" />
+            <source src={videoSrc} type="video/mp4" />
           </video>
         </div>
       </div>
