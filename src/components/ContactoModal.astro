@@ -1,0 +1,205 @@
+---
+// src/components/ContactoModal.astro
+//
+// Overlay global para el botón "Contacto" del Hero.
+// No duplica el formulario: en el click, toma el nodo real
+// #contacto-box (definido una sola vez en Contacto.astro) y lo
+// inserta dentro de este overlay. Al cerrar, lo devuelve a su
+// section original (#contacto-section), donde sigue viviendo
+// como parte normal del flujo del documento para quien scrollea.
+---
+
+<div id="contacto-modal-overlay" class="contacto-modal-overlay" aria-hidden="true">
+  <div id="contacto-modal-backdrop" class="contacto-modal-backdrop"></div>
+  <div id="contacto-modal-panel" class="contacto-modal-panel">
+    <div class="contacto-modal-close-row">
+      <button id="contacto-modal-close" type="button" aria-label="Cerrar" class="contacto-modal-close">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <line x1="3" y1="3" x2="19" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="19" y1="3" x2="3" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+    <!-- #contacto-box se inserta acá dinámicamente vía JS -->
+  </div>
+</div>
+
+<style>
+  .contacto-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  @media (max-width: 480px) {
+    .contacto-modal-overlay {
+      padding: 1rem 0.85rem;
+    }
+  }
+
+  .contacto-modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .contacto-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .contacto-modal-panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    /* Con el form ya compactado por .in-modal, esto casi nunca debería
+       activarse — queda como red de seguridad para pantallas muy chicas
+       o landscape, no como el mecanismo principal. */
+    max-height: 95vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    /* Centra el contenido del panel en mobile cuando no llena el ancho */
+    display: flex;
+    flex-direction: column;
+    transform: translateY(16px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+
+    /* Barra de scroll discreta y centrada visualmente con el cuadro,
+       en vez de pegada al borde de la ventana */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  }
+
+  .contacto-modal-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .contacto-modal-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+  }
+
+  .contacto-modal-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .contacto-modal-overlay.open .contacto-modal-panel {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  .contacto-modal-close-row {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: flex-end;
+    /* Pequeño fondo de degradé para que el botón se siga viendo bien
+       aunque haya texto del form pasando por detrás al hacer scroll */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
+    padding: 0.5rem 0.5rem 0;
+    margin: -0.5rem -0.5rem 0;
+    z-index: 2;
+  }
+
+  .contacto-modal-close {
+    color: rgba(255, 255, 255, 0.6);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s ease;
+  }
+
+  .contacto-modal-close:hover {
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contacto-modal-overlay,
+    .contacto-modal-panel {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const overlay = document.getElementById('contacto-modal-overlay')!;
+  const panel = document.getElementById('contacto-modal-panel')!;
+  const closeBtn = document.getElementById('contacto-modal-close')!;
+
+  // Guardamos dónde vive originalmente el form para poder devolverlo.
+  let originalParent: HTMLElement | null = null;
+  let originalNextSibling: ChildNode | null = null;
+  let modalOpen = false;
+
+  function openContactModal() {
+    const box = document.getElementById('contacto-box');
+    if (!box || modalOpen) return;
+
+    // Guardamos posición original exacta (incluyendo el hermano siguiente,
+    // para poder reinsertar en el mismo punto exacto del DOM al cerrar).
+    originalParent = box.parentElement;
+    originalNextSibling = box.nextSibling;
+
+    box.classList.add('in-modal');
+    panel.appendChild(box);
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('lock-scroll');
+    document.body.classList.add('lock-scroll');
+    modalOpen = true;
+  }
+
+  function closeContactModal() {
+    const box = document.getElementById('contacto-box');
+    if (!box || !modalOpen) return;
+
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('lock-scroll');
+    document.body.classList.remove('lock-scroll');
+    modalOpen = false;
+
+    // Esperamos a que termine la transición de salida antes de mover
+    // el nodo, para no cortar la animación de cierre.
+    const restoreNode = () => {
+      box.classList.remove('in-modal');
+      if (originalParent) {
+        originalParent.insertBefore(box, originalNextSibling);
+      }
+    };
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      restoreNode();
+    } else {
+      setTimeout(restoreNode, 350);
+    }
+  }
+
+  // El botón "Contacto" del Hero dispara este evento custom en vez de
+  // hacer scroll (ver data-contact-trigger en Hero.astro).
+  window.addEventListener('openContactModal', openContactModal);
+
+  closeBtn.addEventListener('click', closeContactModal);
+  document.getElementById('contacto-modal-backdrop')!.addEventListener('click', closeContactModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalOpen) closeContactModal();
+  });
+</script>

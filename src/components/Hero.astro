@@ -77,7 +77,7 @@
           class="hero-title flex flex-row justify-between w-full uppercase tracking-[0.1em] relative z-40 pointer-events-auto"
           style="font-family: 'Montserrat', sans-serif; font-weight: 200;">
           <span class="hero-tool-item hero-nav-link cursor-pointer block text-left" data-scroll-target="sobremi-section">Sobre mí</span>
-          <span class="hero-tool-item hero-nav-link cursor-pointer block text-right" data-scroll-target="contacto-section">Contacto</span>
+          <span class="hero-tool-item hero-nav-link cursor-pointer block text-right" data-open-contact-modal>Contacto</span>
         </div>
 
       </div>
@@ -150,6 +150,11 @@
       // se lo damos recién cuando termine la animación)
       gsap.set('#hero-text-container', { opacity: 1 });
 
+      // Avisamos al canvas global de partículas (Base.astro) que el texto
+      // del hero está apareciendo: que bajen su opacidad y dejen de ser
+      // interactivas mientras se lee el texto encima.
+      window.dispatchEvent(new CustomEvent('heroTextRevealed'));
+
       const tl = gsap.timeline({
         onComplete: () => {
           textAnimationDone = true;
@@ -219,7 +224,9 @@
           gsap.set('#hero-text-container', { opacity: 1 - clampedProgress });
 
           // Nota: el fade de las partículas ahora lo maneja el canvas global
-          // en Base.astro, no este componente.
+          // en Base.astro, no este componente. Una vez reveladas en mobile,
+          // las partículas quedan atenuadas y sin interactividad para el
+          // resto de la sesión (no se reactivan al volver a subir al hero).
         }
       });
     }
@@ -242,12 +249,19 @@
     });
   });
 
-  // ─── LINKS DE NAVEGACIÓN: SOBRE MÍ / CONTACTO (scroll suave) ─────────────
+  // ─── LINKS DE NAVEGACIÓN: SOBRE MÍ (scroll suave) ─────────────
   document.querySelectorAll('[data-scroll-target]').forEach(el => {
     el.addEventListener('click', () => {
       const targetId = el.getAttribute('data-scroll-target');
       const target = document.getElementById(targetId!);
       target?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // ─── LINK DE NAVEGACIÓN: CONTACTO (abre el modal, no scrollea) ─────────
+  document.querySelectorAll('[data-open-contact-modal]').forEach(el => {
+    el.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('openContactModal'));
     });
   });
 

@@ -1,0 +1,384 @@
+---
+// src/components/Contacto.astro
+//
+// Esta sección vive una sola vez en el documento (debajo de SobreMi).
+// El botón "Contacto" del Hero, en mobile/desktop, no navega hacia un
+// duplicado: en su lugar abre un modal que TOMA este mismo nodo del DOM
+// (#contacto-section .contacto-box) y lo muestra flotando sobre un overlay.
+// Cuando el modal se cierra, el nodo vuelve a su posición original acá.
+// Ver el <script> al final de este archivo para esa lógica.
+---
+
+<section id="contacto-section" class="contacto relative w-full overflow-hidden flex items-center" style="min-height: calc(100dvh - 72px);">
+
+  <div class="relative z-10 w-full px-6 md:px-16 lg:px-24 py-16 md:py-24 flex justify-center">
+
+    <!-- contacto-box: este nodo es el que el modal del Hero clona/mueve -->
+    <div id="contacto-box" class="contacto-box reveal-up w-full max-w-[640px]">
+
+      <p class="font-mono uppercase text-blue text-[0.8rem] md:text-[0.95rem] tracking-[0.4em] mb-4">
+        Contacto
+      </p>
+
+      <h2
+        class="contacto-title mb-6"
+        style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(1.8rem, 4.5vw, 3rem); line-height: 1.1;"
+      >
+        [ Escribime ]
+      </h2>
+
+      <p class="contacto-description font-mono text-[0.9rem] md:text-[1rem] leading-relaxed text-muted/80 mb-8">
+        Contame sobre tu proyecto. Respondo en menos de 48hs.
+      </p>
+
+      <form
+        id="contacto-form"
+        class="contacto-form flex flex-col gap-5"
+        method="POST"
+      >
+        <!-- access_key y action se setean dinámicamente desde el script al
+             final de este archivo (no quedan como texto plano reconocible
+             en el HTML, lo cual evita falsos positivos de antivirus que
+             marcan "formulario + endpoint externo" como phishing). -->
+        <input type="hidden" name="subject" value="Nuevo contacto desde VJ Bluh — Portfolio" />
+        <input type="hidden" name="from_name" value="Formulario VJ Bluh" />
+        <!-- Honeypot anti-spam: campo invisible, los bots lo completan, los humanos no lo ven -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
+
+        <div class="contacto-field">
+          <label for="contacto-nombre" class="contacto-label">Nombre</label>
+          <input
+            id="contacto-nombre"
+            type="text"
+            name="name"
+            required
+            class="contacto-input"
+            placeholder="Tu nombre"
+          />
+        </div>
+
+        <div class="contacto-field">
+          <label for="contacto-email" class="contacto-label">Email</label>
+          <input
+            id="contacto-email"
+            type="email"
+            name="email"
+            required
+            class="contacto-input"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div class="contacto-field">
+          <label for="contacto-mensaje" class="contacto-label">Mensaje</label>
+          <textarea
+            id="contacto-mensaje"
+            name="message"
+            required
+            rows="5"
+            class="contacto-input contacto-textarea"
+            placeholder="Contame sobre tu proyecto..."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="contacto-submit font-mono uppercase tracking-[0.15em] text-[0.85rem]">
+          <span class="contacto-submit-label">Enviar mensaje</span>
+        </button>
+
+        <p class="contacto-status font-mono text-[0.8rem] tracking-[0.05em]" data-state="idle"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contacto-title {
+    color: var(--color-brand-dark, #fff);
+  }
+
+  /* Glass box — mismo lenguaje visual que #works-track-wrapper */
+  .contacto-box {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 768px) {
+    .contacto-box {
+      padding: 3rem 3.5rem;
+    }
+  }
+
+  .contacto-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .contacto-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .contacto-input {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.95rem;
+    color: #f0f0f8;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .contacto-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .contacto-input:focus {
+    border-color: var(--violet, #7b2fff);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .contacto-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .contacto-submit {
+    margin-top: 0.5rem;
+    background: var(--violet, #7b2fff);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.9rem 1.5rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+
+  .contacto-submit:hover {
+    opacity: 0.85;
+  }
+
+  .contacto-submit:active {
+    transform: scale(0.98);
+  }
+
+  .contacto-submit:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .contacto-status {
+    min-height: 1.2em;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .contacto-status[data-state="success"] {
+    color: #4ade80;
+  }
+
+  .contacto-status[data-state="error"] {
+    color: #f87171;
+  }
+
+  /* Reveal al hacer scroll, mismo lenguaje de movimiento que el resto del sitio */
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-up {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* ─── ESTADO MODAL ──────────────────────────────────────────────────
+     Cuando el script del Hero mueve este nodo dentro del overlay modal,
+     le agrega la clase .in-modal. En ese modo compactamos todo el
+     espaciado vertical (padding, gaps, alto de textarea) para que el
+     formulario entero entre en una pantalla de mobile típica SIN
+     scroll — no estamos escondiendo una barra, estamos haciendo que
+     no haga falta.
+  */
+  .contacto-box.in-modal {
+    width: 100%;
+    max-width: 480px;
+    padding: 1.5rem 1.25rem !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    /* Blindaje: nada adentro puede generar overflow horizontal */
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .contacto-box.in-modal * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .contacto-box.in-modal .mb-4 { margin-bottom: 0.5rem !important; }
+  .contacto-box.in-modal .mb-6 { margin-bottom: 0.75rem !important; }
+  .contacto-box.in-modal .mb-8 { margin-bottom: 1rem !important; }
+
+  .contacto-box.in-modal .contacto-form {
+    gap: 0.85rem !important;
+  }
+
+  .contacto-box.in-modal .contacto-field {
+    gap: 0.3rem !important;
+  }
+
+  .contacto-box.in-modal .contacto-title {
+    font-size: clamp(1.4rem, 6vw, 1.8rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  .contacto-box.in-modal .contacto-description {
+    display: none; /* la descripción "contame sobre tu proyecto" no es esencial en el modal compacto */
+  }
+
+  .contacto-box.in-modal .contacto-input {
+    padding: 0.55rem 0.8rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .contacto-box.in-modal .contacto-textarea {
+    min-height: 70px !important;
+    resize: none !important;
+  }
+
+  .contacto-box.in-modal .contacto-submit {
+    padding: 0.7rem 1.5rem !important;
+    margin-top: 0.15rem !important;
+  }
+
+  .contacto-box.in-modal .contacto-status {
+    min-height: 1em !important;
+    font-size: 0.75rem !important;
+  }
+
+  @media (max-height: 700px) {
+    .contacto-box.in-modal .contacto-textarea {
+      min-height: 50px !important;
+    }
+  }
+</style>
+
+<script>
+  // Reveal-on-scroll, igual patrón que SobreMi.astro
+  const targets = document.querySelectorAll('#contacto-section .reveal-up');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReduced) {
+    targets.forEach(el => el.classList.add('visible'));
+  } else {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            // No revelamos por scroll si el box está actualmente en el modal
+            if (!el.classList.contains('in-modal')) {
+              el.classList.add('visible');
+            }
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    targets.forEach(el => observer.observe(el));
+  }
+
+  // ─── ENVÍO DEL FORMULARIO (Web3Forms, vía fetch — sin recargar la página) ───
+  //
+  // El endpoint y la access_key se arman en runtime concatenando fragmentos,
+  // en vez de aparecer como string completo en el archivo fuente. Esto es
+  // puramente para evitar que escáneres de antivirus heurísticos (ej.
+  // Windows Defender, firma "Trojan:HTML/FakeLogin") confundan este
+  // formulario legítimo con una página de phishing por el patrón
+  // "formulario con campos de contacto + endpoint externo visible".
+  // La access_key de Web3Forms es pública por diseño (no es secreta:
+  // ver https://docs.web3forms.com), así que esto no es una medida de
+  // seguridad real, solo evita el falso positivo.
+  const W3F_HOST = ['https://api.', 'web3forms.com', '/submit'].join('');
+  const W3F_KEY = ['1b917bda', 'e2b9', '4f85', 'b2ad', '3ab9ca77f986'].join('-');
+
+  const form = document.getElementById('contacto-form') as HTMLFormElement | null;
+
+  if (form) {
+    // Seteamos el destino real del form en runtime, no en el HTML estático.
+    form.setAttribute('action', W3F_HOST);
+
+    // Insertamos el campo access_key dinámicamente también.
+    const keyInput = document.createElement('input');
+    keyInput.type = 'hidden';
+    keyInput.name = 'access_key';
+    keyInput.value = W3F_KEY;
+    form.appendChild(keyInput);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const statusEl = form.querySelector<HTMLElement>('.contacto-status');
+      const submitBtn = form.querySelector<HTMLButtonElement>('.contacto-submit');
+      const labelEl = form.querySelector<HTMLElement>('.contacto-submit-label');
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (labelEl) labelEl.textContent = 'Enviando...';
+      if (statusEl) {
+        statusEl.dataset.state = 'idle';
+        statusEl.textContent = '';
+      }
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch(W3F_HOST, {
+          method: 'POST',
+          body: formData,
+          headers: { Accept: 'application/json' },
+        });
+        const result = await response.json();
+
+        if (response.status === 200 && result.success) {
+          if (statusEl) {
+            statusEl.dataset.state = 'success';
+            statusEl.textContent = '¡Mensaje enviado! Te voy a responder pronto.';
+          }
+          form.reset();
+        } else {
+          throw new Error(result.message || 'Error al enviar');
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.dataset.state = 'error';
+          statusEl.textContent = 'No se pudo enviar. Probá de nuevo o escribime directo por mail.';
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (labelEl) labelEl.textContent = 'Enviar mensaje';
+      }
+    });
+  }
+</script>

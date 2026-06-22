@@ -138,6 +138,23 @@ const {
       // flotando solas, sin reaccionar al cursor.
       let interactionEnabled = true;
 
+      // En mobile, el texto del hero no aparece por scroll sino por un
+      // tap en la scroll-zone (ver Hero.astro). Cuando eso pasa, forzamos
+      // que las partículas bajen de opacidad y dejen de ser interactivas
+      // PARA SIEMPRE en esa sesión de página: aunque el usuario vuelva a
+      // subir al hero con el scroll, las partículas no recuperan ni la
+      // opacidad ni la interactividad. Solo un refresh de página reinicia
+      // este estado.
+      let heroTextRevealedMobile = false;
+      const MOBILE_TEXT_OPACITY = 0.25;
+
+      window.addEventListener('heroTextRevealed', () => {
+        if (heroTextRevealedMobile) return; // ya disparado, no repetir
+        heroTextRevealedMobile = true;
+        gsap.to(canvas, { opacity: MOBILE_TEXT_OPACITY, duration: 0.4, ease: 'power1.out' });
+        interactionEnabled = false;
+      });
+
       function handleMove(clientX: number, clientY: number) {
         if (!interactionEnabled) return;
         const mx = clientX;
@@ -273,6 +290,12 @@ const {
           end: 'bottom top',
           scrub: true,
           onUpdate(self) {
+            // Si el texto del hero ya se reveló en mobile (por tap, no por
+            // scroll), ese estado es definitivo para esta sesión de página:
+            // el scroll nunca vuelve a tocar opacidad ni interactividad,
+            // ni siquiera al volver a subir al hero.
+            if (heroTextRevealedMobile) return;
+
             const progress = Math.min(Math.max(self.progress, 0), 1);
             const opacity = 1 - progress * (1 - MIN_OPACITY);
             gsap.set(canvas, { opacity });
