@@ -137,6 +137,27 @@ const {
       // está visible en pantalla. Fuera del Hero, las partículas siguen
       // flotando solas, sin reaccionar al cursor.
       let interactionEnabled = true;
+      // ─── ZONA DE EXCLUSIÓN: el texto del Hero no debe "atraer" partículas ───
+// Solo aplica en desktop (en mobile el texto tapa la pantalla y la
+// interacción ya se corta por completo al revelarse, ver heroTextRevealed).
+let heroBoxRect: DOMRect | null = null;
+
+function updateHeroBoxRect() {
+  if (window.innerWidth < 768) {
+    heroBoxRect = null;
+    return;
+  }
+  const heroBox = document.querySelector('.hero-box');
+  heroBoxRect = heroBox ? heroBox.getBoundingClientRect() : null;
+}
+
+function isInsideHeroBox(x: number, y: number) {
+  if (!heroBoxRect) return false;
+  return (
+    x >= heroBoxRect.left && x <= heroBoxRect.right &&
+    y >= heroBoxRect.top && y <= heroBoxRect.bottom
+  );
+}
 
       // En mobile, el texto del hero no aparece por scroll sino por un
       // tap en la scroll-zone (ver Hero.astro). Cuando eso pasa, forzamos
@@ -155,10 +176,11 @@ const {
         interactionEnabled = false;
       });
 
-      function handleMove(clientX: number, clientY: number) {
-        if (!interactionEnabled) return;
-        const mx = clientX;
-        const my = clientY;
+     function handleMove(clientX: number, clientY: number) {
+  if (!interactionEnabled) return;
+  if (isInsideHeroBox(clientX, clientY)) return; // el mouse está sobre el texto: no reacciona
+  const mx = clientX;
+  const my = clientY;
 
         if (isDown) {
           particles.forEach(p => {
@@ -185,37 +207,36 @@ const {
         }
       }
 
-      function handlePress() {
-        if (!interactionEnabled) return;
-        isDown = true;
-      }
+      function handlePress(clientX: number, clientY: number) {
+  if (!interactionEnabled) return;
+  if (isInsideHeroBox(clientX, clientY)) return; // click iniciado sobre el texto: no reacciona
+  isDown = true;
+}
 
       function handleRelease(clientX: number, clientY: number, triggerBurst = false) {
-        if (!interactionEnabled) return;
-        isDown = false;
-        if (triggerBurst) {
-          const mx = clientX;
-          const my = clientY;
-          particles.forEach(p => {
-            const dx = p.x - mx, dy = p.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < REPEL_RADIUS && dist > 0) {
-              const force = (1 - dist / REPEL_RADIUS) * REPEL_FORCE;
-              p.vx += (dx / dist) * force; p.vy += (dy / dist) * force;
-              p.life = 0; p.maxLife = rand(200, 500);
-            }
-          });
-          particles.push(...Array.from({ length: BURST_COUNT }, () => makeBurstParticle(mx, my)));
-        }
+  if (!interactionEnabled) return;
+  isDown = false;
+  if (triggerBurst && !isInsideHeroBox(clientX, clientY)) {
+    const mx = clientX;
+    const my = clientY;
+    particles.forEach(p => {
+      const dx = p.x - mx, dy = p.y - my;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < REPEL_RADIUS && dist > 0) {
+        const force = (1 - dist / REPEL_RADIUS) * REPEL_FORCE;
+        p.vx += (dx / dist) * force; p.vy += (dy / dist) * force;
+        p.life = 0; p.maxLife = rand(200, 500);
       }
+    });
+    particles.push(...Array.from({ length: BURST_COUNT }, () => makeBurstParticle(mx, my)));
+  }
+}
 
-      window.addEventListener('mousedown', () => handlePress());
+      window.addEventListener('mousedown', (e) => handlePress(e.clientX, e.clientY));
       window.addEventListener('mouseup', (e) => handleRelease(e.clientX, e.clientY, true));
       window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
 
-      window.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 0) handlePress();
-      }, { passive: true });
+      window.addEventListener('touchstart', (e) => {if (e.touches.length > 0) handlePress(e.touches[0].clientX, e.touches[0].clientY);}, { passive: true });
 
       window.addEventListener('touchmove', (e) => {
         if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
@@ -262,12 +283,20 @@ const {
       }
 
       let resizeTimeout: ReturnType<typeof setTimeout>;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => { resize(); initParticles(); }, 200);
-      }, { passive: true });
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => { resize(); initParticles(); updateHeroBoxRect(); }, 200);
+}, { passive: true });
 
-      startCanvas();
+window.addEventListener('scroll', updateHeroBoxRect, { passive: true });
+
+startCanvas();
+updateHeroBoxRect();
+
+// El layout del hero puede moverse levemente cuando cargan las webfonts
+// (Montserrat, etc.), así que reconsultamos el rect un par de veces más.
+setTimeout(updateHeroBoxRect, 300);
+setTimeout(updateHeroBoxRect, 1000);
 
       // ─── FADE PROGRESIVO + DESACTIVAR INTERACCIÓN FUERA DEL HERO ───────
       // Mientras el Hero está en pantalla: opacidad 1, interacción activa.
