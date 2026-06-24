@@ -4,13 +4,14 @@
 // Esta sección vive una sola vez en el documento.
 // El botón "Contacto" del Hero genera un scroll suave nativo hasta acá.
 // Reemplazamos el formulario por accesos directos y limpios a canales de comunicación.
+import ScrollToTopArrow from './ScrollToTopArrow.astro';
 ---
 
-<section id="contacto-section" class="contacto relative w-full overflow-hidden flex items-center" style="min-height: calc(100dvh - 72px);">
+<section id="contacto-section" class="contacto relative w-full overflow-hidden flex flex-col items-center" style="min-height: calc(100dvh - 72px);">
 
-  <div class="relative z-10 w-full px-6 md:px-16 lg:px-24 py-16 md:py-24 flex justify-center">
+  <div class="relative z-10 w-full px-6 md:px-16 lg:px-24 py-16 md:py-24 flex justify-center flex-1">
 
-    <div id="contacto-box" class="contacto-box reveal-up w-full max-w-[640px]">
+    <div id="contacto-box" class="contacto-box reveal-up w-full max-w-[640px] self-center">
 
       <p class="font-mono uppercase text-blue text-[0.8rem] md:text-[0.95rem] tracking-[0.4em] mb-4">
         Conexión
@@ -78,6 +79,8 @@
       </div>
     </div>
   </div>
+
+  <ScrollToTopArrow />
 </section>
 
 <style>
@@ -210,7 +213,4 @@
     );
     targets.forEach(el => observer.observe(el));
   }
-
-
-
 </script>

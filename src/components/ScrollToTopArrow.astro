@@ -1,0 +1,36 @@
+---
+// src/components/ScrollToTopArrow.astro
+// Flecha de scroll hacia el Hero, mismo lenguaje visual que #hero-scroll-zone
+// pero invertida (apunta hacia arriba) y centrada al pie de cada sección.
+// Reutilizable: se importa e inserta una vez por sección (Works, SobreMi, Contacto).
+---
+
+<div
+  class="scroll-to-top-zone w-full flex justify-center py-8 md:py-10 cursor-pointer select-none"
+  data-scroll-to-hero
+  role="button"
+  aria-label="Volver al inicio"
+>
+  <div class="scroll-to-top-visual flex items-start justify-center gap-2 transition-transform duration-200 active:scale-95">
+    <div class="w-px h-12 overflow-hidden">
+      <div class="w-full h-full bg-gradient-to-t from-transparent to-violet origin-bottom"></div>
+    </div>
+    <div class="w-px h-12 overflow-hidden">
+      <div class="w-full h-full bg-gradient-to-t from-transparent to-violet origin-bottom"></div>
+    </div>
+    <div class="w-px h-12 overflow-hidden">
+      <div class="w-full h-full bg-gradient-to-t from-transparent to-violet origin-bottom"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Un solo listener delegado por document, así no importa cuántas veces
+  // se inserte este componente en la página: todas las instancias funcionan
+  // igual sin duplicar listeners ni lógica.
+  document.querySelectorAll('[data-scroll-to-hero]').forEach((el) => {
+    el.addEventListener('click', () => {
+      document.getElementById('hero-section')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
