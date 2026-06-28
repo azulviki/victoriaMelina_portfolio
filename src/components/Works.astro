@@ -584,6 +584,30 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseAllVideos();
   });
+
+  document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pauseAllVideos();
+});
+
+// ── Pausa todos los videos cuando el usuario scrollea la PÁGINA ────
+// (hacia arriba o abajo) y la sección de works deja de estar a la vista.
+// Funciona igual en desktop y mobile.
+const worksSection = document.getElementById('works-section');
+if (worksSection) {
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) {
+          pauseAllVideos();
+        }
+      });
+    },
+    { threshold: 0.5 } // se considera "fuera de vista" si queda menos del 50% visible
+  );
+  sectionObserver.observe(worksSection);
+}
+
+applyFilter('all');
  
   applyFilter('all');
 </script>

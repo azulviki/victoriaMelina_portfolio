@@ -11,20 +11,17 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 
   <div class="relative z-10 w-full px-6 md:px-16 lg:px-24 py-16 md:py-24 flex justify-center flex-1">
 
-    <div id="contacto-box" class="contacto-box reveal-up w-full max-w-[640px] self-center">
+    <div id="contacto-box" class="contacto-box reveal-up w-full max-w-[800px] self-center">
 
-      <p class="font-mono uppercase text-blue text-[0.8rem] md:text-[0.95rem] tracking-[0.4em] mb-4">
+      <p class="font-mono uppercase text-blue text-[0.9rem] text-center md:text-[1.10rem] tracking-[0.4em] mb-4">
         Conexión
       </p>
 
-      <h2
-        class="contacto-title mb-6"
-        style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(0.9rem, 4.5vw, 2.5rem); line-height: 1.1;"
-      >
-        [ Si querés, charlamos ]
+      <h2  class="contacto-title mb-6 text-center" style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(1.1rem, 5vw, 3rem); line-height: 1.1;">
+       [ Si querés, charlamos ]
       </h2>
 
-      <p class="contacto-description font-mono text-[1.8remrem] md:text-[1.5rem] leading-relaxed text-muted/80 mb-10">
+      <p class="contacto-description font-mono text-[1.8remrem] md:text-[1.5rem] text-center leading-relaxed text-muted/80 mb-10">
         La vía la elegís vos.
       </p>
 
@@ -83,60 +80,78 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   }
 
   /* Glass box — Clonado exacto del lenguaje visual de #works-track-wrapper */
+.contacto-box {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
   .contacto-box {
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 1.5rem;
-    padding: 2.5rem 2rem;
-    box-sizing: border-box;
+    padding: 7rem 5rem;
+    max-width: 800px; /* antes era 640px, vía el contenedor padre */
   }
+}
 
-  @media (min-width: 768px) {
-    .contacto-box {
-      padding: 3rem 3.5rem;
-    }
-  }
+/* Botones de íconos: circulares, sin texto ni flecha */
+.contacto-link-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  color: #f0f0f8;
+  text-decoration: none;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
+  box-sizing: border-box;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent; /* saca el flash azul nativo en mobile */
+}
 
-  /* Botones de íconos: circulares, sin texto ni flecha */
-  .contacto-link-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 50%;
-    color: #f0f0f8;
-    text-decoration: none;
-    transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
-    box-sizing: border-box;
-    outline: none;
-    cursor: pointer;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
+/* Hover SOLO en dispositivos con puntero real (mouse/trackpad).
+   Esto evita que el estado de hover quede "pegado" tras un tap en touch. */
+@media (hover: hover) and (pointer: fine) {
   .contacto-link-btn:hover {
     border-color: var(--violet, #7b2fff);
     background: rgba(255, 255, 255, 0.06);
     transform: translateY(-3px);
   }
 
-  .contacto-link-btn:active {
-    transform: translateY(-1px) scale(0.97);
+  .contacto-link-btn:hover .link-icon {
+    color: var(--violet, #7b2fff);
+    opacity: 1;
   }
+}
 
-  .link-icon {
-    width: 28px;
-    height: 28px;
-    opacity: 0.85;
-    transition: transform 0.25s ease, color 0.25s ease;
-  }
+/* Feedback táctil momentáneo para touch: solo dura mientras se mantiene presionado */
+.contacto-link-btn:active {
+  border-color: var(--violet, #7b2fff);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px) scale(0.97);
+}
 
+.contacto-link-btn:active .link-icon {
+  color: var(--violet, #7b2fff);
+  opacity: 1;
+}
+
+.link-icon {
+  width: 28px;
+  height: 28px;
+  opacity: 0.85;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
   .contacto-link-btn:hover .link-icon {
     color: var(--violet, #7b2fff);
     opacity: 1;
