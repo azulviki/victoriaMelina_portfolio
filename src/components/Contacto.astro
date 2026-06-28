@@ -17,7 +17,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
         Conexión
       </p>
 
-      <h2  class="contacto-title mb-6 text-center" style="font-family: 'Montserrat', sans-serif; font-weight: 200; font-size: clamp(1.1rem, 5vw, 3rem); line-height: 1.1;">
+      <h2  class="contacto-title mb-6 text-center" style="font-family: 'Montserrat', sans-serif; font-weight: 100; font-size: clamp(0.05rem, 3vw, 2rem); line-height: 1.1;">
        [ Si querés, charlamos ]
       </h2>
 
@@ -92,7 +92,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 
 @media (min-width: 768px) {
   .contacto-box {
-    padding: 7rem 5rem;
+    padding: 8rem 5rem;
     max-width: 800px; /* antes era 640px, vía el contenedor padre */
   }
 }
@@ -119,8 +119,14 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   -webkit-tap-highlight-color: transparent; /* saca el flash azul nativo en mobile */
 }
 
-/* Hover SOLO en dispositivos con puntero real (mouse/trackpad).
-   Esto evita que el estado de hover quede "pegado" tras un tap en touch. */
+.link-icon {
+  width: 28px;   
+  height: 28px;  
+  opacity: 0.85;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+/* Hover SOLO en dispositivos con puntero real (mouse/trackpad) */
 @media (hover: hover) and (pointer: fine) {
   .contacto-link-btn:hover {
     border-color: var(--violet, #7b2fff);
@@ -132,30 +138,30 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
     color: var(--violet, #7b2fff);
     opacity: 1;
   }
+
+  .contacto-link-btn:active {
+    border-color: var(--violet, #7b2fff);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px) scale(0.97);
+  }
+
+  .contacto-link-btn:active .link-icon {
+    color: var(--violet, #7b2fff);
+    opacity: 1;
+  }
 }
 
-/* Feedback táctil momentáneo para touch: solo dura mientras se mantiene presionado */
-.contacto-link-btn:active {
+/* Estado "presionado" para touch, controlado por JS (solo dura mientras hay contacto físico) */
+.contacto-link-btn.is-pressed {
   border-color: var(--violet, #7b2fff);
   background: rgba(255, 255, 255, 0.06);
   transform: translateY(-1px) scale(0.97);
 }
 
-.contacto-link-btn:active .link-icon {
+.contacto-link-btn.is-pressed .link-icon {
   color: var(--violet, #7b2fff);
   opacity: 1;
 }
-
-.link-icon {
-  width: 28px;
-  height: 28px;
-  opacity: 0.85;
-  transition: transform 0.25s ease, color 0.25s ease;
-}
-  .contacto-link-btn:hover .link-icon {
-    color: var(--violet, #7b2fff);
-    opacity: 1;
-  }
 
   /* Reveal-up al hacer scroll (mismo comportamiento que el resto de tu web) */
   .reveal-up {
@@ -182,6 +188,22 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   // Lógica idéntica de Reveal-on-scroll sin interferencias
   const targets = document.querySelectorAll('#contacto-section .reveal-up');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+  // Feedback táctil en mobile: violeta SOLO mientras el dedo sigue tocando el ícono.
+ // Se limpia con touchend Y touchcancel para evitar que quede "pegado".
+  
+  const linkBtns = document.querySelectorAll<HTMLElement>('.contacto-link-btn');
+  linkBtns.forEach(btn => {
+  btn.addEventListener('touchstart', () => {
+    btn.classList.add('is-pressed');
+  }, { passive: true });
+
+  const release = () => btn.classList.remove('is-pressed');
+
+  btn.addEventListener('touchend', release, { passive: true });
+  btn.addEventListener('touchcancel', release, { passive: true });
+});
 
   if (prefersReduced) {
     targets.forEach(el => el.classList.add('visible'));
