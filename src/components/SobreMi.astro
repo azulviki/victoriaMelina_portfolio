@@ -69,16 +69,24 @@ const posterSrc = `${base}images/sobremi-poster.jpg`;
   }
 
   .sobremi-video-frame {
-    position: relative;
-    width: 70%;
-    max-width: 320px;
-    margin: 0 auto;
-    aspect-ratio: 4 / 5;
-    border-radius: 1rem;
-    overflow: hidden;
-    background: #000;
-    border: 1px solid var(--border);
+  position: relative;
+  width: 55%;
+  max-width: 220px;
+  margin: 0 auto;
+  aspect-ratio: 3 / 2;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .sobremi-video-frame {
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 3 / 4;
   }
+}
 
   .sobremi-video {
     position: absolute;
