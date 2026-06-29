@@ -49,11 +49,12 @@
 
       <div class="hero-bottom-block w-full flex flex-col gap-0">
         <p
-          id="hero-tagline"
-          class="hero-tool-item hero-spread font-mono uppercase cursor-default text-[0.95rem] md:text-[1.2rem] mb-6 w-full pointer-events-auto"
-          data-es="Creo atmósferas visuales y sonoras"
-          data-en="I create visual and auditory atmospheres"
-        >Creo atmósferas visuales y sonoras</p>
+  id="hero-tagline"
+  class="hero-tool-item hero-spread font-mono uppercase cursor-pointer text-[0.95rem] md:text-[1.2rem] mb-6 w-full pointer-events-auto"
+  data-es="Creo atmósferas visuales y sonoras"
+  data-en="I create visual and auditory atmospheres"
+  id="hero-tagline-link"
+>Creo atmósferas visuales y sonoras</p>
 
         <div
           id="hero-tools"
@@ -233,6 +234,13 @@
   });
 
   // ─── FILTROS DE TRABAJOS ──────────────────────────────────────────────
+
+  // ─── TAGLINE: siempre lleva a works SIN filtro ─────────────────
+document.getElementById('hero-tagline')?.addEventListener('click', () => {
+  window.dispatchEvent(new CustomEvent('worksGoToAll'));
+});
+
+
   document.querySelectorAll('[data-link-category]').forEach(el => {
     el.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('worksFilter', {
