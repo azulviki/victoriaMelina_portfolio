@@ -796,29 +796,38 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
  
   function goTo(index: number, animate = true) {
     pauseAllVideos();
- 
+
     if (window.innerWidth < 768) {
-      currentIndex = index;
+      const slides = visibleSlides();
+      currentIndex = Math.max(0, Math.min(index, slides.length - 1));
+      const targetSlide = slides[currentIndex];
+      const wrapper = document.getElementById('works-track-wrapper')!;
+      if (targetSlide) {
+        wrapper.scrollTo({
+          left: targetSlide.offsetLeft,
+          behavior: animate ? 'smooth' : 'auto'
+        });
+      }
       updateDots();
       return;
     }
- 
+
     const slides = visibleSlides();
     if (!slides.length) return;
     currentIndex = Math.max(0, Math.min(index, slides.length - 1));
- 
+
     const wrapper = document.getElementById('works-track-wrapper')!;
     const offset = currentIndex * wrapper.offsetWidth;
- 
+
     animate
       ? gsap.to(track, { x: -offset, duration: 0.7, ease: 'power3.inOut' })
       : gsap.set(track, { x: -offset });
- 
+
     updateDots();
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex === slides.length - 1;
   }
- 
+
   prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
   nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
  
@@ -894,6 +903,8 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   if (section) section.scrollIntoView({ behavior: 'smooth' });
   setTimeout(() => applyFilter('all'), 400);
 });
+
+  
  
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseAllVideos();
