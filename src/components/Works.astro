@@ -839,14 +839,29 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
   nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
  
-  // Swipe touch
-  let touchStartX = 0;
-  const wrapper = document.getElementById('works-track-wrapper')!;
+ // Swipe touch
+// Swipe touch — solo lo necesitamos en desktop (gsap mueve el track manualmente).
+// En mobile el scroll-snap nativo ya maneja el gesto; agregar goTo() encima
+// generaba dos animaciones compitiendo y las transiciones se veían trabadas.
+let touchStartX = 0;
+const wrapper = document.getElementById('works-track-wrapper')!;
+
+if (window.innerWidth >= 768) {
   wrapper.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
   wrapper.addEventListener('touchend', e => {
     const diff = touchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) diff > 0 ? goTo(currentIndex + 1) : goTo(currentIndex - 1);
   }, { passive: true });
+}
+
+// Pausamos los videos una sola vez al iniciar el scroll, no en cada frame,
+// para no bombardear de postMessage a ~24 iframes durante la transición.
+let scrollPauseTimeout: ReturnType<typeof setTimeout> | null = null;
+wrapper.addEventListener('scroll', () => {
+  if (scrollPauseTimeout) return;
+  pauseAllVideos();
+  scrollPauseTimeout = setTimeout(() => { scrollPauseTimeout = null; }, 400);
+}, { passive: true });
  
   wrapper.addEventListener('scroll', () => {
     // Frenamos cualquier sonido apenas se detecta movimiento de scroll,
