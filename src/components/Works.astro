@@ -4,7 +4,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 ---
 
 <section id="works-section" class="relative w-full overflow-hidden">
-  <div id="works-track-wrapper" class="relative w-full overflow-hidden" style="height: calc(100dvh - 72px);">
+  <div id="works-track-wrapper" class="relative w-full overflow-hidden">
     <div id="works-track" class="flex h-full will-change-transform" style="width: max-content;">
 
       <article class="work-slide" data-tool="touchdesigner" data-category="motion" data-index="0">
@@ -383,6 +383,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   justify-content: center;
   align-items: center;
   min-height: 100dvh;
+  overflow: visible; /* antes: hidden */
   background: transparent !important;
 }
 
@@ -393,10 +394,17 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 1.5rem;
-  width: 99vw;                 /* <- Subido a 99vw para ocupar casi todo el ancho */
-  max-width: 1920px;           /* <- Subido a 1920px para monitores grandes */
+  width: 99vw;
+  max-width: 1920px;
   overflow: hidden;
   position: relative;
+  height: calc(100dvh - 72px - 110px); /* deja lugar a la flecha */
+}
+
+@media (min-width: 768px) {
+  #works-track-wrapper {
+    height: calc(100dvh - 72px - 130px); /* py-10 es más grande en desktop */
+  }
 }
 
 /* --- 3. EL TRACK (Forzado a comportarse como una grilla rígida) --- */
