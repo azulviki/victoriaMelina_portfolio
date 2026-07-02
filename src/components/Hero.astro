@@ -109,6 +109,15 @@
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
+   // ─── BANDERA COMPARTIDA DE INTERACTIVIDAD ────────────────────────────
+  // En desktop el texto aparece solo, así que es interactivo desde el arranque.
+  // En mobile arranca en false: los links (tagline, tools, tags, nav-links)
+  // no deben responder a clicks hasta que el usuario reveló el texto con el
+  // tap en la scroll-zone Y terminó la animación de entrada.
+  let heroMobileInteractive = window.innerWidth >= 768;
+
+  
+
   // ─── ANIMACIONES DE ENTRADA Y LÓGICA DE REVELADO ─────────────────────────
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isDesktop = window.innerWidth >= 768;
@@ -156,18 +165,18 @@
       // interactivas mientras se lee el texto encima.
       window.dispatchEvent(new CustomEvent('heroTextRevealed'));
 
+
       const tl = gsap.timeline({
         onComplete: () => {
           textAnimationDone = true;
 
           // Apagamos la scroll-zone vieja, ya cumplió su función
-          if (scrollZone) {
-            scrollZone.style.pointerEvents = 'none';
-          }
+          if (scrollZone) {scrollZone.style.pointerEvents = 'none';}
 
           // Recién ahora habilitamos los clicks en tags / professions del hero
           gsap.set('#hero-text-container', { pointerEvents: 'auto' });
-
+          heroMobileInteractive = true; // ← recién ahora se habilitan los links
+          
           // Y liberamos el scroll nativo de la página
           liberarScrollNativo();
         }
@@ -237,12 +246,14 @@
 
   // ─── TAGLINE: siempre lleva a works SIN filtro ─────────────────
 document.getElementById('hero-tagline')?.addEventListener('click', () => {
+  if (!heroMobileInteractive) return;
   window.dispatchEvent(new CustomEvent('worksGoToAll'));
 });
 
 
   document.querySelectorAll('[data-link-category]').forEach(el => {
     el.addEventListener('click', () => {
+      if (!heroMobileInteractive) return;
       window.dispatchEvent(new CustomEvent('worksFilter', {
         detail: { tool: el.getAttribute('data-link-category') }
       }));
@@ -251,6 +262,7 @@ document.getElementById('hero-tagline')?.addEventListener('click', () => {
 
   document.querySelectorAll('[data-tag-tool]').forEach(el => {
     el.addEventListener('click', () => {
+      if (!heroMobileInteractive) return;
       window.dispatchEvent(new CustomEvent('worksFilter', {
         detail: { tool: el.getAttribute('data-tag-tool') }
       }));
@@ -260,6 +272,7 @@ document.getElementById('hero-tagline')?.addEventListener('click', () => {
   // ─── LINKS DE NAVEGACIÓN: SOBRE MÍ (scroll suave) ─────────────
   document.querySelectorAll('[data-scroll-target]').forEach(el => {
     el.addEventListener('click', () => {
+      if (!heroMobileInteractive) return;
       const targetId = el.getAttribute('data-scroll-target');
       const target = document.getElementById(targetId!);
       target?.scrollIntoView({ behavior: 'smooth' });
@@ -269,6 +282,7 @@ document.getElementById('hero-tagline')?.addEventListener('click', () => {
   // ─── LINK DE NAVEGACIÓN: CONTACTO (Antes abría el modal, AHORA hace scroll suave) ───
   document.querySelectorAll('[data-open-contact-modal]').forEach(el => {
     el.addEventListener('click', () => {
+      if (!heroMobileInteractive) return;
       const target = document.getElementById('contacto-section');
       target?.scrollIntoView({ behavior: 'smooth' });
     });
