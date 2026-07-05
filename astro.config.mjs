@@ -8,8 +8,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   // 🌟 CONFIGURACIÓN PARA GITHUB PAGES
-  site: 'https://azulviki.github.io', 
-  base: '/victoriaMelina_portfolio',
+  site: 'https://victoriamelina.art', 
+  //base: '/victoriaMelina_portfolio',
 
   integrations: [
     react(),
