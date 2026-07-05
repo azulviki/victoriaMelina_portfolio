@@ -362,50 +362,6 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 
 <style>
 
-/* Facade de YouTube: solo se ve la miniatura + botón de play hasta que se hace click */
-  .yt-facade {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    background: #000;
-    overflow: hidden;
-  }
-  .yt-facade .yt-thumb {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .yt-facade .yt-play-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-  .yt-facade:hover .yt-play-btn {
-    background: rgba(255, 0, 0, 0.8);
-    transform: translate(-50%, -50%) scale(1.08);
-  }
-  .yt-facade .yt-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-
 
 /* --- 1. SECCIÓN PRINCIPAL --- */
 #works-section {
@@ -488,6 +444,49 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   min-height: 0 !important;
 }
 
+/* Facade de YouTube: solo se ve la miniatura + botón de play hasta que se hace click */
+  .yt-facade {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: #000;
+    overflow: hidden;
+  }
+  .yt-facade .yt-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .yt-facade .yt-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .yt-facade:hover .yt-play-btn {
+    background: rgba(255, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .yt-facade .yt-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
 
 /* --- 5. EL VIDEO --- */
 .slide-video {
@@ -773,7 +772,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
         () => {
           const id = el.getAttribute('data-video-id');
           if (!id) return;
-          el.innerHTML = `<iframe class="yt-frame" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=1&enablejsapi=1&rel=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+          el.innerHTML = `<iframe class="yt-frame" style="width:100%;height:100%;border:none;display:block;" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=1&enablejsapi=1&rel=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
           // Una vez creado el iframe real, lo tratamos como el video activo
           // del slide (frena a los demás, como cualquier otro play).
           const slide = el.closest<HTMLElement>('.work-slide');
