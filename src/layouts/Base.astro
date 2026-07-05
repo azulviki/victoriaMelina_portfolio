@@ -11,7 +11,7 @@ interface Props {
 
 const {
   title = 'Victoria Melina — VJ Bluh',
-  description = 'Realizadora audiovisual y VJ. After Effects, TouchDesigner, Resolume.',
+  description = 'Realizadora multimedial - After Effects | TouchDesigner | Resolume',
 } = Astro.props;
 ---
 
@@ -23,10 +23,19 @@ const {
     <meta name="description" content={description} />
     <title>{title}</title>
 
-    <!-- Open Graph -->
+    <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} /> <!-- Esto toma la URL exacta de la página actual -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content={new URL('images/preview-whatsapp.jpg', Astro.site)} /> 
+    <!-- La línea de arriba genera automáticamente la URL absoluta (https://victoriamelina.art/preview-whatsapp.jpg) usando el 'site' que configuraste en tu astro.config.mjs -->
+
+    <!-- Twitter/X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('images/preview-whatsapp.jpg', Astro.site)} />
 
     <!-- Favicon placeholder -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -42,6 +51,7 @@ const {
         background: #000;
       }
     </style>
+  </head>
 
     <script is:inline>
       const savedLang = localStorage.getItem('lang') || 'es';
