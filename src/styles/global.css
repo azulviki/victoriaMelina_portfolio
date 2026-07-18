@@ -5,7 +5,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
-/* 🌟 TIPOGRAFÍAS: Agregamos 'Open Sans' para tu nombre junto a las de Space */
+/*TIPOGRAFÍAS: Agregamos 'Open Sans' para nombre junto a las de Space */
 
 @layer base {
   :root {
@@ -13,7 +13,7 @@
     --blue:   #00c8ff;
     --border: rgba(255,255,255,0.08);
     
-    /* 🌟 VARIABLES DE COLOR: Las centralizamos aquí para usarlas en todo el CSS */
+    /* VARIABLES DE COLOR: Las centralizamos aquí para usarlas en todo el CSS */
     --color-brand-dark: #c4b5fd;  /* El violeta oscuro base de tu nombre */
     --color-brand-light: #00c8ff; /* El lavanda del hover */
     --color-snow: #4e4e5f;    /* El blanco nieve para textos */
