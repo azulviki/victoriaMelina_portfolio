@@ -98,7 +98,7 @@
 
  <div 
   id="hero-scroll-zone" 
-  class="absolute bottom-0 left-0 w-full h-24 z-50 pointer-events-auto cursor-pointer flex items-center select-none px-6 md:px-16 lg:px-24">
+  class="absolute bottom-0 left-0 w-full h-24 z-50 pointer-events-auto cursor-pointer flex items-center select-none px-6 md:px-16 lg:px-24 text-violet">
   <div id="hero-scroll-visual" class="flex items-end justify-between w-full transition-transform duration-200 active:scale-95">
   <div class="scroll-bar w-px h-12 overflow-hidden">
     <div class="w-full h-full bg-gradient-to-b from-transparent to-violet origin-top"></div>
@@ -151,9 +151,10 @@
   }
 
   @keyframes scrollBarGlow {
-    0%, 100% { filter: drop-shadow(0 0 0px rgba(167, 139, 250, 0)); }
-    50%      { filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.9)); }
-  }
+  0%, 100% { filter: drop-shadow(0 0 0px currentColor); }
+  50%      { filter: drop-shadow(0 0 10px currentColor); }
+}
+
 </style>
 
 
@@ -206,18 +207,24 @@
     }
 
     // ─── REVELADO DEL TEXTO ───────────────────────────────────────────────
+    let glowDelayedCall: gsap.core.Tween | null = null; // ← nueva variable para que desaparezca el glow
+
     function revealHeroMobile() {
       if (heroRevealed) return;
       heroRevealed = true;
 
-      // Mostramos el contenedor de texto (todavía sin pointer-events,
-      // se lo damos recién cuando termine la animación)
-      gsap.set('#hero-text-container', { opacity: 1 });
+       // Cancelamos el glow: si todavía no había arrancado, que no arranque;
+      // si ya estaba corriendo, lo apagamos.
+       if (glowDelayedCall) {
+       glowDelayedCall.kill();
+       glowDelayedCall = null;
+      }
 
-      // Avisamos al canvas global de partículas (Base.astro) que el texto
-      // del hero está apareciendo: que bajen su opacidad y dejen de ser
-      // interactivas mientras se lee el texto encima.
-      window.dispatchEvent(new CustomEvent('heroTextRevealed'));
+  document.getElementById('hero-scroll-zone')?.classList.remove('scroll-zone-glow');
+  gsap.killTweensOf('.scroll-bar');
+
+  gsap.set('#hero-text-container', { opacity: 1 });
+  window.dispatchEvent(new CustomEvent('heroTextRevealed'));
 
 
       const tl = gsap.timeline({
@@ -279,9 +286,15 @@
 
     let particlesInteracted = false;
     function onFirstScreenTouch() {
-      if (particlesInteracted) return;
-      particlesInteracted = true;
-      window.removeEventListener('touchstart', onFirstScreenTouch);
+      // 3s después, aparecen las flechas: más grandes y con brillo pulsante
+      glowDelayedCall = gsap.delayedCall(3, () => {
+        if (heroRevealed) return; // por si el texto ya se reveló mientras esperábamos
+        document.getElementById('hero-scroll-zone')?.classList.add('scroll-zone-glow');
+        gsap.fromTo('.scroll-bar',
+          { opacity: 0, scaleY: 0.85 },
+          { opacity: 1, scaleY: 1.3, duration: 0.6, ease: 'back.out(1.7)', stagger: 0.08, transformOrigin: 'bottom' }
+        );
+      });
 
       // El dedo desaparece apenas el usuario toca la pantalla
       if (tapHint) {
