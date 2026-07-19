@@ -316,11 +316,7 @@ function isInsideHeroBox(x: number, y: number) {
         drawFrame();
       }
 
-      let resizeTimeout: ReturnType<typeof setTimeout>;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => { resize(); initParticles(); updateHeroBoxRect(); }, 200);
-}, { passive: true });
+      
 
 window.addEventListener('scroll', updateHeroBoxRect, { passive: true });
 
