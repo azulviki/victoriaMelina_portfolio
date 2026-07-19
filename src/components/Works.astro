@@ -356,7 +356,7 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 
     <div id="works-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20"></div>
 
-    <div id="works-swipe-hint" class="md:hidden absolute inset-0 z-30 flex items-end justify-center pb-24 pointer-events-none opacity-0">
+    <div id="works-swipe-hint" class="md:hidden absolute inset-0 z-30 flex items-end justify-center pb-3 pointer-events-none opacity-0">
       <div class="flex flex-col items-center gap-2">
         <svg class="swipe-hint-icon" width="44" height="28" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M42 14H8M16 6l-8 8 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -805,20 +805,16 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   // ── 2. FUNCIONES DE CONTROL DE VIDEOS ──────────────────────────────
   function initYtFacades() {
     document.querySelectorAll<HTMLElement>('.yt-facade').forEach((el) => {
-      el.addEventListener(
-        'click',
-        () => {
-          const id = el.getAttribute('data-video-id');
-          if (!id) return;
-          el.innerHTML = `<iframe class="yt-frame" style="width:100%;height:100%;border:none;display:block;" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=1&enablejsapi=1&rel=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-          
-          const slide = el.closest<HTMLElement>('.work-slide');
-          if (slide) {
-            requestAnimationFrame(() => playVideoIn(slide));
-          }
-        },
-        { once: true }
-      );
+      el.addEventListener('click', () => {
+        // Forzamos la desaparición del cartel inmediatamente al interactuar con la miniatura
+        dismissSwipeHint();
+
+        const id = el.getAttribute('data-video-id');
+        if (!id) return;
+        el.innerHTML = `<iframe class="yt-frame" style="width:100%;height:100%;border:none;display:block;" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=1&enablejsapi=1&rel=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+        const slide = el.closest<HTMLElement>('.work-slide');
+        if (slide) requestAnimationFrame(() => playVideoIn(slide));
+      }, { once: true });
     });
   }
  
@@ -984,6 +980,8 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
     pauseAllVideos();
     scrollPauseTimeout = setTimeout(() => { scrollPauseTimeout = null; }, 400);
   }, { passive: true });
+
+  wrapper.addEventListener('click', dismissSwipeHint, { passive: true, once: true });
  
   // Clics en botones de filtro de la página
   filterBtns.forEach(btn =>
