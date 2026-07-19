@@ -5,10 +5,11 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 
 <section id="works-section" class="relative w-full overflow-hidden">
   <div id="works-track-wrapper" class="relative w-full overflow-hidden">
+
     <div id="works-track" class="flex h-full will-change-transform" style="width: max-content;">
- 
+
       <article class="work-slide" data-tool="touchdesigner" data-category="motion" data-index="0">
-        <div class="slide-content flex flex-col items-center justify-start w-full h-full px-6 md:px-12 pt-8 box-border">
+         <div class="slide-content flex flex-col items-center justify-start w-full h-full px-6 md:px-12 pt-8 box-border">
           <div class="slide-video yt-facade" data-video-id="Ix10dOGvCpU">
             <img class="yt-thumb" src="https://i.ytimg.com/vi/Ix10dOGvCpU/hqdefault.jpg" alt="Una araña" loading="lazy" />
             <button class="yt-play-btn" aria-label="Reproducir video" type="button">▶</button>
@@ -339,8 +340,8 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
           </div>
         </div>
       </article>
- 
-    </div>
+
+    </div> 
  
     <button id="works-prev" aria-label="Anterior" class="works-nav-btn absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-20">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -352,11 +353,20 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
         <polyline points="12,6 22,16 12,26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
- 
+
     <div id="works-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20"></div>
- 
+
+    <div id="works-swipe-hint" class="md:hidden absolute inset-0 z-30 flex items-end justify-center pb-24 pointer-events-none opacity-0">
+      <div class="flex flex-col items-center gap-2">
+        <svg class="swipe-hint-icon" width="44" height="28" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M42 14H8M16 6l-8 8 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="font-mono uppercase text-[0.7rem] tracking-[0.3em] text-white/70">Deslizá</p>
+      </div>
+    </div>
+
   </div>
- 
+
   <ScrollToTopArrow />
 </section>
 
@@ -599,6 +609,30 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
   }
 }
 
+#works-swipe-hint {
+  color: var(--violet, #7b2fff);
+}
+
+.swipe-hint-icon {
+  animation: swipeHintSlide 1.6s ease-in-out infinite;
+}
+
+@keyframes swipeHintSlide {
+  0%   { transform: translateX(0);   opacity: 0.3; }
+  50%  { transform: translateX(-10px); opacity: 1; }
+  100% { transform: translateX(0);   opacity: 0.3; }
+}
+
+#works-swipe-hint p {
+  animation: swipeHintFade 1.6s ease-in-out infinite;
+}
+
+@keyframes swipeHintFade {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.9; }
+}
+
+
 /* --- COMPUTADORAS (Desktop) --- */
 @media (min-width: 768px) {
   #works-track-wrapper {
@@ -752,19 +786,23 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
 <script>
   import { gsap } from 'gsap';
  
+  // ── 1. VARIABLES Y SELECTORES ──────────────────────────────────────
   let currentFilter = 'all';
   let currentIndex  = 0;
+  let touchStartX   = 0;
+  let scrollPauseTimeout: ReturnType<typeof setTimeout> | null = null;
  
-  const track      = document.getElementById('works-track')!;
-  const dotsEl     = document.getElementById('works-dots')!;
-  const prevBtn    = document.getElementById('works-prev') as HTMLButtonElement;
-  const nextBtn    = document.getElementById('works-next') as HTMLButtonElement;
-  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.works-filter');
-  const allSlides  = Array.from(document.querySelectorAll<HTMLElement>('.work-slide'));
+  const track       = document.getElementById('works-track')!;
+  const dotsEl      = document.getElementById('works-dots')!;
+  const prevBtn     = document.getElementById('works-prev') as HTMLButtonElement;
+  const nextBtn     = document.getElementById('works-next') as HTMLButtonElement;
+  const filterBtns  = document.querySelectorAll<HTMLButtonElement>('.works-filter');
+  const allSlides   = Array.from(document.querySelectorAll<HTMLElement>('.work-slide'));
+  const wrapper     = document.getElementById('works-track-wrapper')!;
+  const swipeHint   = document.getElementById('works-swipe-hint');
+  const worksSection = document.getElementById('works-section');
  
-  // ── Lazy-load de YouTube: reemplaza el facade (miniatura + play) por el ──
-  // ── iframe real recién al hacer click. Evita cargar ~24 reproductores ──
-  // ── de YouTube apenas entra la página. ───────────────────────────────
+  // ── 2. FUNCIONES DE CONTROL DE VIDEOS ──────────────────────────────
   function initYtFacades() {
     document.querySelectorAll<HTMLElement>('.yt-facade').forEach((el) => {
       el.addEventListener(
@@ -773,11 +811,9 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
           const id = el.getAttribute('data-video-id');
           if (!id) return;
           el.innerHTML = `<iframe class="yt-frame" style="width:100%;height:100%;border:none;display:block;" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=1&enablejsapi=1&rel=0" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-          // Una vez creado el iframe real, lo tratamos como el video activo
-          // del slide (frena a los demás, como cualquier otro play).
+          
           const slide = el.closest<HTMLElement>('.work-slide');
           if (slide) {
-            // Esperamos un tick a que el iframe esté en el DOM antes de operar sobre él.
             requestAnimationFrame(() => playVideoIn(slide));
           }
         },
@@ -786,7 +822,6 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
     });
   }
  
-  // ── Control de reproducción de video (YouTube + Vimeo) ──────────────
   function pauseAllVideos(exceptIframe?: HTMLIFrameElement) {
     document.querySelectorAll<HTMLIFrameElement>('.slide-video iframe').forEach(iframe => {
       if (exceptIframe && iframe === exceptIframe) return;
@@ -807,8 +842,20 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
     });
   }
  
+  function pauseSingle(iframe: HTMLIFrameElement) {
+    const src = iframe.src || '';
+    if (!iframe.contentWindow) return;
+    if (src.includes('youtube.com')) {
+      iframe.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+        '*'
+      );
+    } else if (src.includes('vimeo.com')) {
+      iframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
+    }
+  }
+ 
   function playVideoIn(slide: HTMLElement) {
-    // Frenamos todos los demás primero, así nunca suenan dos a la vez
     const iframe = slide.querySelector<HTMLIFrameElement>('.slide-video iframe');
     pauseAllVideos(iframe ?? undefined);
     if (!iframe || !iframe.contentWindow) return;
@@ -826,8 +873,8 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
       );
     }
   }
-  // ──────────────────────────────────────────────────────────────────
  
+  // ── 3. FUNCIONES DE FILTROS Y SLIDER ───────────────────────────────
   function visibleSlides(): HTMLElement[] {
     return allSlides.filter(s => {
       if (currentFilter === 'all') return true;
@@ -849,16 +896,10 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
       s.dataset.hidden = match ? 'false' : 'true';
     });
  
-    buildDots();
     goTo(0, false);
     filterBtns.forEach(btn =>
       btn.classList.toggle('active', btn.dataset.filter === currentFilter)
     );
-  }
- 
-  function buildDots() {
-    const dotsContainer = document.getElementById('tu-contenedor-de-dots');
-    if (!dotsContainer) return;
   }
  
   function updateDots() {
@@ -869,12 +910,16 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
  
   function goTo(index: number, animate = true) {
     pauseAllVideos();
-
+    const slides = visibleSlides();
+    if (!slides.length) return;
+    
+    // Validamos el índice antes de hacer nada
+    const targetIndex = Math.max(0, Math.min(index, slides.length - 1));
+    currentIndex = targetIndex;
+ 
+    // ── MODO MOBILE ──
     if (window.innerWidth < 768) {
-      const slides = visibleSlides();
-      currentIndex = Math.max(0, Math.min(index, slides.length - 1));
       const targetSlide = slides[currentIndex];
-      const wrapper = document.getElementById('works-track-wrapper')!;
       if (targetSlide) {
         wrapper.scrollTo({
           left: targetSlide.offsetLeft,
@@ -882,75 +927,101 @@ import ScrollToTopArrow from './ScrollToTopArrow.astro';
         });
       }
       updateDots();
-      return;
+      return; // <--- ESTE RETURN ES VITAL PARA QUE NO SIGA LEYENDO ABAJO
     }
-
-    const slides = visibleSlides();
-    if (!slides.length) return;
-    currentIndex = Math.max(0, Math.min(index, slides.length - 1));
-
-    const wrapper = document.getElementById('works-track-wrapper')!;
+ 
+    // ── MODO DESKTOP (Solo llega acá si width >= 768) ──
     const offset = currentIndex * wrapper.offsetWidth;
-
-    animate
-      ? gsap.to(track, { x: -offset, duration: 0.7, ease: 'power3.inOut' })
-      : gsap.set(track, { x: -offset });
-
+    
+    if (animate) {
+      gsap.to(track, { x: -offset, duration: 0.7, ease: 'power3.inOut' });
+    } else {
+      gsap.set(track, { x: -offset });
+    }
+ 
     updateDots();
+    
+    // En vez de desaparecer, solo se deshabilitan visualmente (opacidad)
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex === slides.length - 1;
   }
-
+ 
+  // ── 4. MANEJO DEL CARTEL "DESLIZÁ" (MOBILE HINT) ───────────────────
+  let swipeHintDismissed = false;
+  function dismissSwipeHint() {
+    if (swipeHintDismissed || !swipeHint) return;
+    swipeHintDismissed = true;
+    gsap.to(swipeHint, {
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.out',
+      onComplete: () => swipeHint.remove()
+    });
+  }
+ 
+  // ── 5. LISTENERS DE EVENTOS ────────────────────────────────────────
+  
+  // Click Flechas
   prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
   nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
  
- // Swipe touch
-// Swipe touch — solo lo necesitamos en desktop (gsap mueve el track manualmente).
-// En mobile el scroll-snap nativo ya maneja el gesto; agregar goTo() encima
-// generaba dos animaciones compitiendo y las transiciones se veían trabadas.
-let touchStartX = 0;
-const wrapper = document.getElementById('works-track-wrapper')!;
-
-if (window.innerWidth >= 768) {
-  wrapper.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-  wrapper.addEventListener('touchend', e => {
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) diff > 0 ? goTo(currentIndex + 1) : goTo(currentIndex - 1);
-  }, { passive: true });
-}
-
-// Pausamos los videos una sola vez al iniciar el scroll, no en cada frame,
-// para no bombardear de postMessage a ~24 iframes durante la transición.
-let scrollPauseTimeout: ReturnType<typeof setTimeout> | null = null;
-wrapper.addEventListener('scroll', () => {
-  if (scrollPauseTimeout) return;
-  pauseAllVideos();
-  scrollPauseTimeout = setTimeout(() => { scrollPauseTimeout = null; }, 400);
-}, { passive: true });
+  // Swipe Touch (Solo Desktop maneja el track manualmente)
+  if (window.innerWidth >= 768) {
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    wrapper.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) diff > 0 ? goTo(currentIndex + 1) : goTo(currentIndex - 1);
+    }, { passive: true });
+  }
  
+  // Listener de Scroll UNIFICADO para el Wrapper
   wrapper.addEventListener('scroll', () => {
-    // Frenamos cualquier sonido apenas se detecta movimiento de scroll,
-    // para que ningún video siga sonando mientras se cambia de slide.
+    // Ocultar hint de mobile en el primer movimiento
+    dismissSwipeHint();
+ 
+    // Control de pausa anti-bombardeo de postMessage
+    if (scrollPauseTimeout) return;
     pauseAllVideos();
+    scrollPauseTimeout = setTimeout(() => { scrollPauseTimeout = null; }, 400);
   }, { passive: true });
  
-  // ── IntersectionObserver: pausa videos en mobile apenas el slide deja de verse ──
-  // (No reproducimos automáticamente al entrar: el usuario decide con el botón play.)
+  // Clics en botones de filtro de la página
+  filterBtns.forEach(btn =>
+    btn.addEventListener('click', () => applyFilter(btn.dataset.filter ?? 'all'))
+  );
+ 
+  // Custom Events externos para filtrar o redirigir
+  window.addEventListener('worksFilter', (e: Event) => {
+    const { tool } = (e as CustomEvent<{ tool: string }>).detail;
+    if (worksSection) worksSection.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => applyFilter(tool), 400);
+  });
+ 
+  window.addEventListener('worksGoToAll', () => {
+    if (worksSection) worksSection.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => applyFilter('all'), 400);
+  });
+ 
+  // Detener todo si se cambia de pestaña en el navegador
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseAllVideos();
+  });
+ 
+  // ── 6. INTERSECTION OBSERVERS ──────────────────────────────────────
+  
+  // Mobile Observer (Detecta qué slide está activo según scroll nativo)
   if (window.innerWidth < 768) {
     const mobileObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           const slide = entry.target as HTMLElement;
           if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-            // Este slide ocupa la mayoría de la pantalla: actualizamos el índice/dots,
-            // pero NO disparamos play automáticamente.
             const idx = visibleSlides().indexOf(slide);
             if (idx !== -1) {
               currentIndex = idx;
               updateDots();
             }
           } else {
-            // Cualquier slide que ya no está mayormente visible se calla.
             const iframe = slide.querySelector<HTMLIFrameElement>('.slide-video iframe');
             if (iframe) pauseSingle(iframe);
           }
@@ -962,58 +1033,27 @@ wrapper.addEventListener('scroll', () => {
     allSlides.forEach(s => mobileObserver.observe(s));
   }
  
-  function pauseSingle(iframe: HTMLIFrameElement) {
-    const src = iframe.src || '';
-    if (!iframe.contentWindow) return;
-    if (src.includes('youtube.com')) {
-      iframe.contentWindow.postMessage(
-        JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
-        '*'
-      );
-    } else if (src.includes('vimeo.com')) {
-      iframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
-    }
+  // Global Section Observer (Pausa videos si el usuario se va de la sección Works)
+  if (worksSection) {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) {
+            pauseAllVideos();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    sectionObserver.observe(worksSection);
   }
  
-  filterBtns.forEach(btn =>
-    btn.addEventListener('click', () => applyFilter(btn.dataset.filter ?? 'all'))
-  );
+  // ── 7. EJECUCIÓN INICIAL ───────────────────────────────────────────
+  initYtFacades();
+  applyFilter('all');
  
-  window.addEventListener('worksFilter', (e: Event) => {
-    const { tool } = (e as CustomEvent<{ tool: string }>).detail;
-    const section = document.getElementById('works-section');
-    if (section) section.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => applyFilter(tool), 400);
-  });
-
-  window.addEventListener('worksGoToAll', () => {
-  const section = document.getElementById('works-section');
-  if (section) section.scrollIntoView({ behavior: 'smooth' });
-  setTimeout(() => applyFilter('all'), 400);
-});
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) pauseAllVideos();
-  });
-
-// ── Pausa todos los videos cuando el usuario scrollea la PÁGINA ────
-// (hacia arriba o abajo) y la sección de works deja de estar a la vista.
-// Funciona igual en desktop y mobile.
-const worksSection = document.getElementById('works-section');
-if (worksSection) {
-  const sectionObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) {
-          pauseAllVideos();
-        }
-      });
-    },
-    { threshold: 0.5 } // se considera "fuera de vista" si queda menos del 50% visible
-  );
-  sectionObserver.observe(worksSection);
-}
-
-initYtFacades();
-applyFilter('all');
+  // Animación del cartel "Deslizá" en mobile
+  if (window.innerWidth < 768 && swipeHint) {
+    gsap.to(swipeHint, { opacity: 1, duration: 0.6, delay: 1, ease: 'power2.out' });
+  }
 </script>
