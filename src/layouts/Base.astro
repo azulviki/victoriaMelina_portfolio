@@ -73,7 +73,7 @@ const {
       import { gsap } from 'gsap';
       import { ScrollTrigger } from 'gsap/ScrollTrigger';
       gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.config({ ignoreMobileResize: true });
+      ScrollTrigger.config({ignoreMobileResize: true, autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load', // sin "resize"});
 
       const canvas = document.getElementById('globalParticlesCanvas') as HTMLCanvasElement;
       const ctx = canvas.getContext('2d')!;
