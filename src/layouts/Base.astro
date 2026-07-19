@@ -48,14 +48,15 @@ const {
 
     <style>
       #globalParticlesCanvas {
-        position: fixed;
-        inset: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 0;
-        pointer-events: none;
-        background: #000;
-      }
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* se ajusta al viewport real, evita el salto de la barra */
+  z-index: 0;
+  pointer-events: none;
+  background: #000;
+}
     </style>
   </head>
 
@@ -63,7 +64,7 @@ const {
       const savedLang = localStorage.getItem('lang') || 'es';
       document.documentElement.lang = savedLang;
     </script>
-    
+
   <body class="bg-black text-[#f0f0f8] min-h-screen antialiased selection:bg-[#7b2fff]/30 selection:text-white">
     <canvas id="globalParticlesCanvas" aria-hidden="true"></canvas>
     <slot />
@@ -130,10 +131,29 @@ const {
         };
       }
 
-      function resize() {
-        W = canvas.width = window.innerWidth;
-        H = canvas.height = window.innerHeight;
-      }
+      let lastW = window.innerWidth;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+let resizeTimeout: ReturnType<typeof setTimeout>;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    resize();
+    updateHeroBoxRect();
+    // Solo re-generamos partículas si cambió el ANCHO real
+    // (orientación / redimensión de ventana). El alto solo
+    // cambia en mobile por la barra del navegador y no debe
+    // resetear la animación.
+    if (window.innerWidth !== lastW) {
+      lastW = window.innerWidth;
+      initParticles();
+    }
+  }, 200);
+}, { passive: true });
 
       function initParticles() {
         const isMobile = window.innerWidth < 768;
