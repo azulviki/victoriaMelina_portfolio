@@ -74,7 +74,7 @@
   }
 
   #hero-section {
-    height: 100dvh;
+    height: 100svh;
     width: 100%;
   }
 }
@@ -343,4 +343,3 @@
   0%   { background-position: 0% center; }
   100% { background-position: 200% center; }
 }
-
